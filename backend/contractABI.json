@@ -1,0 +1,153 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "certificateId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "templateId",
+        "type": "string"
+      }
+    ],
+    "name": "CertificateCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "certificateId",
+        "type": "uint256"
+      }
+    ],
+    "name": "CertificateDeleted",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "certificateCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "certificates",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "templateId",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_templateId",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_keys",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_values",
+        "type": "string[]"
+      }
+    ],
+    "name": "createCertificate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_certificateId",
+        "type": "uint256"
+      }
+    ],
+    "name": "deleteCertificate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_certificateId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getCertificateInfo",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "templateId",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "keys",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "values",
+        "type": "string[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
