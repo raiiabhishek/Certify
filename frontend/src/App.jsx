@@ -32,7 +32,7 @@ function App() {
         <Route path="/createCertificate" element={<CreateCertificate />} />
         <Route path="/certificate/:pdfPath" element={<CertificateDisplay />} />
         <Route
-          path="/review-certificate/:certificateId"
+          path="/review-certificate/:certificateId/:certId"
           element={<ReviewCertificate />}
         />
         <Route path="/admin">

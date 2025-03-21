@@ -69,6 +69,7 @@ const createCertificate = async (req, res) => {
     //4. Create Database Entry
     const newCertificate = new CertificateModel({
       template: template._id,
+      creator: req.user._id,
     });
     const savedCertificate = await newCertificate.save();
     const uniqueCertificateIdentifier = certificateId;
@@ -84,7 +85,7 @@ const createCertificate = async (req, res) => {
       fs.mkdirSync(certificatesDir, { recursive: true }); // recursive creates any needed parent directories.
     }
     //6. Generate QR Code Data (after blockchain transaction and mongoDB to create the unique certificate identifier)
-    const qrCodeData = `${process.env.FRONTEND_URL}/review-certificate/${uniqueCertificateIdentifier}`;
+    const qrCodeData = `${process.env.FRONTEND_URL}/review-certificate/${uniqueCertificateIdentifier}/${savedCertificate._id}`;
 
     const qrCodeBase64 = await QRCode.toDataURL(qrCodeData); // Convert QR code to base64 for embedding
 
@@ -129,11 +130,11 @@ const createCertificate = async (req, res) => {
     newCertificate.certificateUrl = `/certificates/${pdfFileName}`;
 
     const updatedCertificate = await newCertificate.save();
-
+    console.log(req.user);
     // 7. Update User Model with certificate ID
     const user = await UserModel.findById(req.user._id);
     if (user) {
-      user.certificates.push(updatedCertificate._id);
+      user.certificates.push(savedCertificate._id);
       await user.save();
     }
 

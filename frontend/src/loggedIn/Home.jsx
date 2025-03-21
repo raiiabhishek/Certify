@@ -4,6 +4,8 @@ import Nav from "./Nav";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
 import Footer from "../Footer";
+import { PieChart, Pie, Cell, Legend } from "recharts";
+
 export default function Home() {
   const api = import.meta.env.VITE_URL;
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchProfile = async () => {
       console.log("fetching");
@@ -26,12 +29,15 @@ export default function Home() {
         console.log(response.data);
       } catch (e) {
         console.log(e);
+        setError("Failed to load user data.");
+        setLoading(false);
       }
     };
     if (authToken) {
       fetchProfile();
     }
   }, [authToken]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -39,6 +45,21 @@ export default function Home() {
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500">
+        Error: {error}
+      </div>
+    );
+  }
+
+  const data = [
+    { name: "Certificates", value: user?.certificates?.length || 0 },
+    { name: "Reports", value: user?.reports?.length || 0 },
+  ];
+  const COLORS = ["#0088FE", "#00C49F"];
+
   return (
     <div>
       <Nav />
@@ -47,6 +68,28 @@ export default function Home() {
           <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
             Welcome <span className="text-blue">{user.name} </span> !
           </h1>
+        </div>
+        <div className="flex justify-center">
+          <PieChart width={400} height={400}>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label
+              outerRadius={150}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Legend />
+          </PieChart>
         </div>
       </div>
       <Footer />
