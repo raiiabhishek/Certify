@@ -30,7 +30,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/templates" element={<TemplateSelector />} />
         <Route path="/createCertificate" element={<CreateCertificate />} />
-        <Route path="/certificate/:pdfPath" element={<CertificateDisplay />} />
+        <Route path="/certificates/:pdfPath" element={<CertificateDisplay />} />
         <Route
           path="/review-certificate/:certificateId/:certId"
           element={<ReviewCertificate />}

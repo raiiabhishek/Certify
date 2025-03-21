@@ -96,7 +96,7 @@ function CreateCertificate() {
       );
       if (response.status === 200) {
         console.log("generated succesfully");
-        navigate(`/certificate/${response.data.pdfPath}`);
+        navigate(`/certificates/${response.data.pdfPath}`);
         setLoading(false);
       }
 

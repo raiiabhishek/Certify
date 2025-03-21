@@ -7,8 +7,16 @@ const user = async (req, res) => {
   const getUser = await UserModel.findOne({
     _id: _id,
   })
-    .populate("certificates")
-    .populate("reports");
+    .populate({
+      path: "certificates",
+    })
+    .populate({
+      path: "reports",
+      populate: {
+        path: "certificate",
+        model: "Certificate",
+      },
+    });
   res.status(200).send({
     data: getUser,
   });
