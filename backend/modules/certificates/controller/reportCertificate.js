@@ -6,11 +6,11 @@ const reportCertificate = async (req, res) => {
   const { comment } = req.body;
   const { certId } = req.params;
   try {
+    const cert = await CertificateModel.findOne({ solidityId: certId });
     const newReport = await ReportModel.create({
-      certificate: certId,
+      certificate: cert._id,
       comment,
     });
-    const cert = await CertificateModel.findById(certId);
     const user = await UserModel.findById(cert.creator);
     console.log(user);
     user.reports.push(newReport._id);

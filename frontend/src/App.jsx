@@ -13,6 +13,8 @@ import ResetPassword from "./loggedOut/ResetPassword";
 import Home from "./loggedIn/Home";
 import AHome from "./admin/Home";
 import AUserList from "./admin/UserList";
+import ACertificates from "./admin/CertificatesList";
+import AReports from "./admin/ReportsList";
 import TemplateSelector from "./loggedIn/TemplateSelector";
 import CreateCertificate from "./loggedIn/CreateCertificate";
 import CertificateDisplay from "./loggedIn/CertificateDIsplay";
@@ -32,13 +34,15 @@ function App() {
         <Route path="/createCertificate" element={<CreateCertificate />} />
         <Route path="/certificates/:pdfPath" element={<CertificateDisplay />} />
         <Route
-          path="/review-certificate/:certificateId/:certId"
+          path="/review-certificate/:certificateId"
           element={<ReviewCertificate />}
         />
         <Route path="/admin">
           {/* Nested Route for /admin/teacher */}
           <Route path="home" element={<AHome />} />
           <Route path="users" element={<AUserList />} />
+          <Route path="certificates" element={<ACertificates />} />
+          <Route path="reports" element={<AReports />} />
         </Route>
       </Route>
     )

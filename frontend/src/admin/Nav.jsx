@@ -15,10 +15,10 @@ export default function Nav() {
         <Link to="/" className="text-xl font-bold">
           Certify
         </Link>
-        <nav>
+        <nav className="space-x-4">
           <NavLink
             to="/admin/home"
-            className="mr-4 hover:underline underline-offset-8"
+            className="hover:underline underline-offset-8"
           >
             Home
           </NavLink>
@@ -28,9 +28,21 @@ export default function Nav() {
           >
             Users
           </NavLink>
+          <NavLink
+            to="/admin/certificates"
+            className="hover:underline underline-offset-8"
+          >
+            Certificates
+          </NavLink>
+          <NavLink
+            to="/admin/reports"
+            className="hover:underline underline-offset-8"
+          >
+            Reports
+          </NavLink>
           <button
             onClick={handleLogout}
-            className="mx-4 bg-red-500 rounded px-5 py-2 font-bold hover:bg-red-600"
+            className="bg-red-500 rounded px-5 py-2 font-bold hover:bg-red-600"
           >
             Log Out{" "}
           </button>

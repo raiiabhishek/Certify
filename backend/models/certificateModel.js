@@ -13,6 +13,10 @@ const certificateSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  solidityId: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Certificate", certificateSchema);

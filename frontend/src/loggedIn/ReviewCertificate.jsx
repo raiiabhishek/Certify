@@ -7,7 +7,7 @@ import Footer from "../Footer";
 const api = import.meta.env.VITE_URL;
 
 export default function ReviewCertificate() {
-  const { certificateId, certId } = useParams();
+  const { certificateId } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -80,9 +80,12 @@ export default function ReviewCertificate() {
       return;
     }
     try {
-      const response = await axios.post(`${api}/certificate/report/${certId}`, {
-        comment: reportReason,
-      });
+      const response = await axios.post(
+        `${api}/certificate/report/${certificateId}`,
+        {
+          comment: reportReason,
+        }
+      );
       if (response.status === 201) {
         alert("Report submitted successfully!");
         closeReportModal(); // Close modal on success

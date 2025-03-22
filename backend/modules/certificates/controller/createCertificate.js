@@ -66,16 +66,17 @@ const createCertificate = async (req, res) => {
     let tx = await contract.createCertificate(templateId, keys, values);
     const receipt = await tx.wait();
     const certificateId = receipt.logs[0].args.certificateId;
+    console.log(certificateId);
     //4. Create Database Entry
     const newCertificate = new CertificateModel({
       template: template._id,
       creator: req.user._id,
+      solidityId: certificateId,
     });
     const savedCertificate = await newCertificate.save();
-    const uniqueCertificateIdentifier = certificateId;
 
     //5. Generate PDF (using Puppeteer)
-    const pdfFileName = `${uuidv4()}_certificate.pdf`;
+    const pdfFileName = `${certificateId}.pdf`;
     const rootDir = path.join(__dirname, "..", "..", ".."); // Adjust as needed based on how far from the root this file is
     const certificatesDir = path.join(rootDir, "public", "certificates");
     const pdfPath = path.join(certificatesDir, pdfFileName);
@@ -85,7 +86,7 @@ const createCertificate = async (req, res) => {
       fs.mkdirSync(certificatesDir, { recursive: true }); // recursive creates any needed parent directories.
     }
     //6. Generate QR Code Data (after blockchain transaction and mongoDB to create the unique certificate identifier)
-    const qrCodeData = `${process.env.FRONTEND_URL}/review-certificate/${uniqueCertificateIdentifier}/${savedCertificate._id}`;
+    const qrCodeData = `${process.env.FRONTEND_URL}/review-certificate/${certificateId}`;
 
     const qrCodeBase64 = await QRCode.toDataURL(qrCodeData); // Convert QR code to base64 for embedding
 
