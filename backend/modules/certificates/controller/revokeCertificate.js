@@ -30,10 +30,9 @@ const revokeCertificate = async (req, res) => {
     }
 
     // Convert the certificate ID to a BigNumber for contract interaction
-    const certificateIdBN = ethers.BigNumber.from(certificate.solidityId);
 
     // Call the deleteCertificate function on the contract
-    const tx = await contract.deleteCertificate(certificateIdBN);
+    const tx = await contract.deleteCertificate(certificate.solidityId);
 
     // Wait for the transaction to be mined
     await tx.wait();
