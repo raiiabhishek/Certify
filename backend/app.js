@@ -19,6 +19,7 @@ const getUsers = require("./handlers/getUsers");
 const templateRouter = require("./modules/templates/templates.routes");
 const certificateRouter = require("./modules/certificates/certificates.routes");
 const adminRouter = require("./modules/admin/admin.routes");
+const analytics = require("./handlers/analytics");
 // Models
 require("./models/userModel");
 require("./models/templateModel");
@@ -54,6 +55,7 @@ app.use("/admin", adminRouter);
 app.use("/templates", templateRouter);
 app.use("/certificate", certificateRouter);
 app.use(auth);
+app.get("/analytics", analytics);
 app.get("/dashboard", user);
 // Start the server
 app.listen(8000, () => {
