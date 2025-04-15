@@ -96,81 +96,85 @@ export default function CertificatesList() {
     return <div className="text-center text-red-500">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex h-screen bg-gray-100">
       <Nav />
-      <div className="flex-1 container mx-auto p-5 px-5 lg:px-10 flex flex-col">
-        <h2 className="text-2xl font-bold mb-4">Manage Certificates</h2>
+      <div className="flex-grow overflow-y-auto">
+        <div className="flex-1 container mx-auto p-5 px-5 lg:px-10 flex flex-col">
+          <h2 className="text-2xl font-bold mb-4">Manage Certificates</h2>
 
-        {/* Search and Filter */}
-        <div className="mb-4 flex items-center space-x-2 flex-wrap md:flex-nowrap">
-          <input
-            type="text"
-            placeholder="Search by anything"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border rounded px-3 py-2 w-full sm:w-auto mb-2 md:mb-0 focus:outline-none focus:ring focus:ring-blue-200"
-          />
-        </div>
+          {/* Search and Filter */}
+          <div className="mb-4 flex items-center space-x-2 flex-wrap md:flex-nowrap">
+            <input
+              type="text"
+              placeholder="Search by anything"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border rounded px-3 py-2 w-full sm:w-auto mb-2 md:mb-0 focus:outline-none focus:ring focus:ring-blue-200"
+            />
+          </div>
 
-        {/* Certificate List Table */}
+          {/* Certificate List Table */}
 
-        <div className="overflow-x-auto flex flex-col">
-          <table className="min-w-full bg-white border border-gray-200 shadow-md">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="py-2 px-4 border-b text-left w-1/5">
-                  Template Name
-                </th>
-                <th className="py-2 px-4 border-b text-left w-1/5">
-                  Template Type
-                </th>
-                <th className="py-2 px-4 border-b text-left w-1/5">
-                  Creator Name
-                </th>
-                <th className="py-2 px-4 border-b text-left w-1/5">
-                  Creator Email
-                </th>
-                <th className="py-2 px-4 border-b text-left w-1/5">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCertificates.map((certificate) => (
-                <tr key={certificate._id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">
-                    {certificate.template.name}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {certificate.template.type}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {certificate.creator.name}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {certificate.creator.email}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() =>
-                        handleViewCertificate(certificate.certificateUrl)
-                      }
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => handleCertificateRevoke(certificate._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
-                    >
-                      Revoke
-                    </button>
-                  </td>
+          <div className="overflow-x-auto flex flex-col">
+            <table className="min-w-full bg-white border border-gray-200 shadow-md">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="py-2 px-4 border-b text-left w-1/5">
+                    Template Name
+                  </th>
+                  <th className="py-2 px-4 border-b text-left w-1/5">
+                    Template Type
+                  </th>
+                  <th className="py-2 px-4 border-b text-left w-1/5">
+                    Creator Name
+                  </th>
+                  <th className="py-2 px-4 border-b text-left w-1/5">
+                    Creator Email
+                  </th>
+                  <th className="py-2 px-4 border-b text-left w-1/5">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredCertificates.map((certificate) => (
+                  <tr key={certificate._id} className="hover:bg-gray-50">
+                    <td className="py-2 px-4 border-b">
+                      {certificate.template.name}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {certificate.template.type}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {certificate.creator.name}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {certificate.creator.email}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      <button
+                        onClick={() =>
+                          handleViewCertificate(certificate.certificateUrl)
+                        }
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleCertificateRevoke(certificate._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
+                      >
+                        Revoke
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }
