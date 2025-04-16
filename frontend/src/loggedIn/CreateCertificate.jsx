@@ -15,6 +15,9 @@ function CreateCertificate() {
   const [loading, setLoading] = useState(true);
   const [templateVariables, setTemplateVariables] = useState({});
   const navigate = useNavigate();
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [bulkUploadFile, setBulkUploadFile] = useState(null); // State to store uploaded file
+  const [bulkUploadLoading, setBulkUploadLoading] = useState(false); // Loading state for bulk upload
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -105,7 +108,63 @@ function CreateCertificate() {
       console.error("Error during certificate generation:", error);
       // Handle the error appropriately, maybe show a message to the user
       setError("Error generating certificate");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleBulkUploadClick = () => {
+    setShowBulkUploadModal(true);
+  };
+
+  const handleBulkUploadFileChange = (event) => {
+    setBulkUploadFile(event.target.files[0]);
+  };
+
+  const handleBulkUploadSubmit = async () => {
+    if (!bulkUploadFile) {
+      alert("Please select a file to upload.");
+      return;
+    }
+
+    setBulkUploadLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("files", bulkUploadFile); // Ensure the field name is "files"
+
+      const response = await axios.post(
+        `${api}/certificate/bulk-generate/${templateId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Bulk upload successful", response.data);
+        // Handle successful bulk upload (e.g., display success message)
+        alert("Certificates generated successfully!");
+      } else {
+        console.error("Bulk upload failed", response.data);
+        // Handle error (e.g., display error message)
+        alert("Bulk certificate generation failed.");
+      }
+    } catch (error) {
+      console.error("Error during bulk upload:", error);
+      alert("An error occurred during bulk certificate generation.");
+    } finally {
+      setBulkUploadLoading(false);
+      setShowBulkUploadModal(false); // Close the modal after upload
+      setBulkUploadFile(null); // Clear selected file
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowBulkUploadModal(false);
+    setBulkUploadFile(null); // Optionally clear the selected file when closing the modal
   };
 
   if (loading) {
@@ -155,12 +214,20 @@ function CreateCertificate() {
         <div className="flex-1 p-5 relative">
           <div className="flex justify-between mb-3">
             <h2 className="mb-4 font-semibold text-lg">Preview</h2>
-            <button
-              onClick={onGenerateCertificate}
-              className=" bg-green-500 text-white p-2 rounded cursor-pointer hover:bg-green-600 "
-            >
-              Generate Certificate
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={onGenerateCertificate}
+                className=" bg-green-500 text-white p-2 rounded cursor-pointer hover:bg-green-600 "
+              >
+                Generate Certificate
+              </button>
+              <button
+                onClick={handleBulkUploadClick}
+                className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600"
+              >
+                Bulk Generate
+              </button>
+            </div>
           </div>
 
           <div className="border rounded p-5 max-w-full overflow-auto">
@@ -169,6 +236,41 @@ function CreateCertificate() {
         </div>
       </div>
       <Footer />
+
+      {/* Bulk Upload Modal */}
+      {showBulkUploadModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Upload Spreadsheet for Bulk Certificate Generation
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleBulkUploadFileChange}
+                />
+              </div>
+              <div className="items-center px-4 py-3">
+                <button
+                  className="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                  onClick={handleBulkUploadSubmit}
+                  disabled={bulkUploadLoading}
+                >
+                  {bulkUploadLoading ? "Uploading..." : "Upload and Generate"}
+                </button>
+                <button
+                  className="mt-2 px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
