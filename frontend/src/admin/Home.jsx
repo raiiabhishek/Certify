@@ -1,6 +1,19 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  LabelList,
+} from "recharts";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
 import Footer from "../Footer";
@@ -14,7 +27,34 @@ export default function Home() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(null);
 
+  const handleMouseEnter = (data, index) => {
+    setActiveIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setActiveIndex(null);
+  };
+
+  const renderCustomTooltip = ({ payload, label }) => {
+    if (payload && payload.length) {
+      const dataPoint = payload[0].payload;
+      const percentage = (
+        (dataPoint.value / data.reduce((sum, d) => sum + d.value, 0)) *
+        100
+      ).toFixed(2);
+
+      return (
+        <div className="backdrop-blur-md bg-white/30 p-2 border border-gray-200/50 shadow-md rounded-md">
+          <p className="font-bold text-gray-800">{`${dataPoint.name}: ${percentage}%`}</p>
+          <p className="text-gray-600">{`Value: ${dataPoint.value}`}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -58,6 +98,33 @@ export default function Home() {
     { name: "Certificates", value: analytics?.certificateCount || 0 },
     { name: "Reports", value: analytics?.reportCount || 0 },
   ];
+  const data2 = [
+    { name: "Verified", value: analytics?.verifiedCounts, color: "#82ca9d" },
+    {
+      name: "Unverified",
+      value: analytics?.unverifiedCounts,
+      color: "#8884d8",
+    },
+  ];
+
+  const renderCustomizedLabel = (props) => {
+    const { x, y, width, height, value, fill } = props;
+    const radius = 10;
+
+    return (
+      <g>
+        <text
+          x={x + width / 2}
+          y={y - radius} // Position above the bar
+          fill={fill}
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {value}
+        </text>
+      </g>
+    );
+  };
   return (
     <div className="flex h-screen bg-gray-100">
       <Nav />
@@ -73,7 +140,7 @@ export default function Home() {
               <h2 className="text-xl font-semibold mb-4">
                 Document Distribution
               </h2>
-              <div className="h-80 w-full">
+              <div className="h-80 w-full flex">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -84,6 +151,9 @@ export default function Home() {
                       outerRadius={120}
                       fill="#8884d8"
                       dataKey="value"
+                      activeIndex={activeIndex}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
                     >
                       {data.map((entry, index) => (
                         <Cell
@@ -92,8 +162,31 @@ export default function Home() {
                         />
                       ))}
                     </Pie>
+                    <Tooltip content={renderCustomTooltip} />
                     <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
+                </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={data2}
+                    margin={{
+                      top: 20,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#8884d8">
+                      <LabelList
+                        dataKey="value"
+                        content={renderCustomizedLabel}
+                      />
+                    </Bar>
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>

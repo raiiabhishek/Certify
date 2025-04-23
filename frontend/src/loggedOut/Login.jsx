@@ -119,7 +119,7 @@ export default function Login() {
             type="submit"
             className="text-white bg-blue-700 hover:bg-blue-dark focus:ring-2 focus:outline-none focus:ring-blue font-medium rounded-lg text-sm w-full  px-5 py-2.5 text-center "
           >
-            Submit
+            Log In
           </button>
         </form>
         <span className="px-4 text-center mb-10">

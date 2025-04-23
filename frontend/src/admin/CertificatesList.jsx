@@ -4,6 +4,7 @@ import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
 import Footer from "../Footer";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 
 export default function CertificatesList() {
   const api = import.meta.env.VITE_URL;
@@ -156,15 +157,15 @@ export default function CertificatesList() {
                         onClick={() =>
                           handleViewCertificate(certificate.certificateUrl)
                         }
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
+                        className="text-blue-500 hover:bg-gray-300  font-bold py-1 px-2 rounded mr-2"
                       >
-                        View
+                        <AiOutlineEye />
                       </button>
                       <button
                         onClick={() => handleCertificateRevoke(certificate._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
+                        className="text-red-500 hover:bg-gray-300 font-bold py-1 px-2 rounded"
                       >
-                        Revoke
+                        <AiOutlineDelete />
                       </button>
                     </td>
                   </tr>
