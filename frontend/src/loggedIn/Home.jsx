@@ -62,9 +62,75 @@ export default function Home() {
     { name: "Certificates", value: user?.certificates?.length || 0 },
     { name: "Reports", value: user?.reports?.length || 0 },
   ];
+  function numberToText(inputString) {
+    const numberMapping = {
+      0: "abc",
+      1: "def",
+      2: "ghi",
+      3: "jkl",
+      4: "mno",
+      5: "pqr",
+      6: "stu",
+      7: "vwx",
+      8: "yza",
+      9: "bcd",
+    };
 
+    let outputString = "";
+    for (let i = 0; i < inputString.length; i++) {
+      const char = inputString[i];
+      if (numberMapping[char]) {
+        outputString += numberMapping[char];
+      } else {
+        outputString += char;
+      }
+    }
+    return outputString;
+  }
+
+  function textToNumber(inputString) {
+    const numberMappingReverse = {
+      abc: "0",
+      def: "1",
+      ghi: "2",
+      jkl: "3",
+      mno: "4",
+      pqr: "5",
+      stu: "6",
+      vwx: "7",
+      yza: "8",
+      bcd: "9",
+    };
+
+    let outputString = "";
+    let currentWord = "";
+
+    for (let i = 0; i < inputString.length; i++) {
+      const char = inputString[i];
+
+      if (char === " " || i === inputString.length - 1) {
+        if (i === inputString.length - 1) {
+          currentWord += char;
+        }
+
+        if (numberMappingReverse[currentWord]) {
+          outputString += numberMappingReverse[currentWord];
+          currentWord = "";
+        } else {
+          outputString +=
+            currentWord + (i === inputString.length - 1 ? "" : " ");
+          currentWord = "";
+        }
+      } else {
+        currentWord += char;
+      }
+    }
+
+    return outputString;
+  }
   const handleViewCertificate = (certificateId) => {
-    navigate(`${certificateId}`);
+    const enc = numberToText(certificateId);
+    navigate(`${enc}`);
   };
 
   const handleRevokeCertificate = async (certificateId) => {

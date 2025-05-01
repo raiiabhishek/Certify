@@ -5,7 +5,6 @@ import { FaLinkedin } from "react-icons/fa";
 import { useParams } from "react-router";
 import Footer from "../Footer";
 import Nav from "./Nav";
-
 export default function CertificateDisplay() {
   const api = import.meta.env.VITE_URL;
   const { pdfPath } = useParams();
@@ -13,6 +12,34 @@ export default function CertificateDisplay() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  function textToNumber(inputString) {
+    const numberMappingReverse = {
+      abc: "0",
+      def: "1",
+      ghi: "2",
+      jkl: "3",
+      mno: "4",
+      pqr: "5",
+      stu: "6",
+      vwx: "7",
+      yza: "8",
+      bcd: "9",
+    };
+
+    let outputString = "";
+
+    for (let i = 0; i < inputString.length; i += 3) {
+      const batch = inputString.substring(i, i + 3); // Extract a 3-character batch
+
+      if (numberMappingReverse[batch]) {
+        outputString += numberMappingReverse[batch]; // If the batch is a code, add the corresponding number
+      } else {
+        outputString += batch; // Otherwise, keep the batch as it is
+      }
+    }
+
+    return outputString;
+  }
 
   useEffect(() => {
     const fetchCertificate = async () => {
@@ -20,7 +47,9 @@ export default function CertificateDisplay() {
       setError(null);
 
       try {
-        const certificateURL = `${api}/certificates/${pdfPath}`;
+        const cert = textToNumber(pdfPath);
+        console.log(cert);
+        const certificateURL = `${api}/certificates/${cert}`;
         setPdfUrl(certificateURL);
       } catch (err) {
         console.error("Error fetching certificate:", err);

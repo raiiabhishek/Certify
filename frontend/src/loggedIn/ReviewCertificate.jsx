@@ -15,7 +15,34 @@ export default function ReviewCertificate() {
   const [templateVariables, setTemplateVariables] = useState({});
   const [reportModalOpen, setReportModalOpen] = useState(false); // State to manage report modal visibility
   const [reportReason, setReportReason] = useState(""); // State to store the report reason
+  function textToNumber(inputString) {
+    const numberMappingReverse = {
+      abc: "0",
+      def: "1",
+      ghi: "2",
+      jkl: "3",
+      mno: "4",
+      pqr: "5",
+      stu: "6",
+      vwx: "7",
+      yza: "8",
+      bcd: "9",
+    };
 
+    let outputString = "";
+
+    for (let i = 0; i < inputString.length; i += 3) {
+      const batch = inputString.substring(i, i + 3); // Extract a 3-character batch
+
+      if (numberMappingReverse[batch]) {
+        outputString += numberMappingReverse[batch]; // If the batch is a code, add the corresponding number
+      } else {
+        outputString += batch; // Otherwise, keep the batch as it is
+      }
+    }
+
+    return outputString;
+  }
   useEffect(() => {
     const fetchCertificateData = async () => {
       setLoading(true);

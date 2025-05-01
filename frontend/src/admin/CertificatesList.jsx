@@ -87,8 +87,35 @@ export default function CertificatesList() {
     }
   };
 
+  function numberToText(inputString) {
+    const numberMapping = {
+      0: "abc",
+      1: "def",
+      2: "ghi",
+      3: "jkl",
+      4: "mno",
+      5: "pqr",
+      6: "stu",
+      7: "vwx",
+      8: "yza",
+      9: "bcd",
+    };
+
+    let outputString = "";
+    for (let i = 0; i < inputString.length; i++) {
+      const char = inputString[i];
+      if (numberMapping[char]) {
+        outputString += numberMapping[char];
+      } else {
+        outputString += char;
+      }
+    }
+    return outputString;
+  }
+
   const handleViewCertificate = (certificateId) => {
-    navigate(`${certificateId}`);
+    const enc = numberToText(certificateId);
+    navigate(`${enc}`);
   };
 
   if (loading)

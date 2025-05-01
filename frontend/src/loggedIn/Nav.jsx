@@ -10,7 +10,7 @@ export default function Nav() {
     navigate("/");
   };
   return (
-    <header className="bg-indigo-700 py-4 text-white px-5 lg:px-10">
+    <header className="bg-[#2c4036] py-4 text-white px-5 lg:px-10">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
           Certify
