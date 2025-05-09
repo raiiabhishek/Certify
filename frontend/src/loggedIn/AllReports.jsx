@@ -13,7 +13,7 @@ import Footer from "../Footer";
 
 const COLORS = ["#4F46E5", "#10B981"];
 
-export default function Home() {
+export default function AllReports() {
   const api = import.meta.env.VITE_URL;
   const navigate = useNavigate();
   const { authToken } = useContext(AuthContext);
@@ -115,156 +115,20 @@ export default function Home() {
     }
   };
 
-  const latestCertificates = user?.certificates
-    ? user.certificates
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 3)
-    : [];
-
-  const latestReports = user?.reports
-    ? user.reports
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 3)
-    : [];
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <main className="flex-1 ml-0 md:ml-64 px-4 py-8">
+        {" "}
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="relative">
             <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
-              Welcome <span className="text-indigo-600">{user?.name} </span> !
+              <span className="text-indigo-600">Reports </span> !
             </h1>
           </div>
           <div className="grid grid-cols-1 gap-8 mt-4">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">
-                Document Distribution
-              </h2>
-              <div className="h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {data.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Legend verticalAlign="bottom" height={36} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
-              <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
-                <AiOutlineAlignCenter className="h-8 w-8 text-indigo-600 mr-4" />
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Total Certificates
-                  </h3>
-                  <p className="text-2xl font-semibold text-indigo-600">
-                    {user?.certificates?.length || 0}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
-                <AiOutlineFileText className="h-8 w-8 text-emerald-600 mr-4" />
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Total Reports
-                  </h3>
-                  <p className="text-2xl font-semibold text-emerald-600">
-                    {user?.reports?.length || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {latestCertificates && latestCertificates.length > 0 && (
+            {user?.reports && user.reports.length > 0 && (
               <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
-                <h2 className="text-xl font-semibold mb-4">
-                  Recent Certificates
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {latestCertificates.map((certificate) => (
-                        <tr key={certificate._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {certificate._id}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(
-                              certificate.createdAt
-                            ).toLocaleDateString()}
-                          </td>
-
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    certificate.certificateUrl
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(certificate._id)
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <span className="text-red-600 hover:text-red-900">
-                                  Revoke
-                                </span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {latestReports && latestReports.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
-                <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -287,7 +151,7 @@ export default function Home() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {latestReports.map((report) => (
+                      {user.reports.map((report) => (
                         <tr key={report._id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {report._id}
@@ -341,25 +205,6 @@ export default function Home() {
                 No reports found.
               </div>
             )}
-            {user?.certificates && user.certificates.length === 0 && (
-              <div className="text-center text-gray-500 lg:col-span-2">
-                No certificate found.
-              </div>
-            )}
-            {latestCertificates.length === 0 &&
-              user?.certificates &&
-              user.certificates.length > 0 && (
-                <div className="text-center text-gray-500 lg:col-span-2">
-                  No more certificates found.
-                </div>
-              )}
-            {latestReports.length === 0 &&
-              user?.reports &&
-              user.reports.length > 0 && (
-                <div className="text-center text-gray-500 lg:col-span-2">
-                  No more reports found.
-                </div>
-              )}
           </div>
         </div>
       </main>

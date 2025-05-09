@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
-import { FaLinkedin } from "react-icons/fa";
+import { FaLinkedin, FaShare } from "react-icons/fa";
 import { useParams } from "react-router";
 import Footer from "../Footer";
-import Nav from "./Nav";
+import Sidebar from "./Sidebar"; // Import the Sidebar
+
 export default function CertificateDisplay() {
   const api = import.meta.env.VITE_URL;
   const { pdfPath } = useParams();
@@ -12,6 +13,7 @@ export default function CertificateDisplay() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   function textToNumber(inputString) {
     const numberMappingReverse = {
       abc: "0",
@@ -48,8 +50,8 @@ export default function CertificateDisplay() {
 
       try {
         const cert = textToNumber(pdfPath);
-        console.log(cert);
         const certificateURL = `${api}/certificates/${cert}`;
+
         setPdfUrl(certificateURL);
       } catch (err) {
         console.error("Error fetching certificate:", err);
@@ -102,59 +104,76 @@ export default function CertificateDisplay() {
 
   if (loading) {
     return (
-      <div>
-        <Nav />
-        <div className="flex justify-center items-center h-screen">
-          Loading certificate...
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+          <div className="flex justify-center items-center h-screen">
+            Loading certificate...
+          </div>
+          <Footer />
         </div>
-        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div>
-        <div className="text-red-500 text-center">{error}</div>
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+          <div className="flex justify-center items-center h-screen text-red-500">
+            {error}
+          </div>
+          <Footer />
+        </div>
       </div>
     );
   }
 
   if (!pdfUrl) {
     return (
-      <div>
-        <Nav />
-        <div>No Certificate to display</div>
-        <Footer />
+      <div className="min-h-screen flex">
+        <Sidebar />
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+          <div className="flex justify-center items-center h-screen">
+            No Certificate to display
+          </div>
+          <Footer />
+        </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <Nav />
-      <div className="container mx-auto p-4">
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <div className="mb-4 border border-gray-200 rounded overflow-hidden">
-            <iframe
-              src={pdfUrl}
-              title="Certificate PDF"
-              className="w-full h-[600px]" // Set the height and width as needed
-            ></iframe>
+    <div className="min-h-screen flex">
+      <Sidebar />
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+        <main className="container mx-auto p-4 flex-grow">
+          {" "}
+          {/* Use flex-grow to fill available space */}
+          <div className="bg-white shadow-md rounded-lg p-6 h-full flex flex-col">
+            {" "}
+            {/* Make the content area a flex container */}
+            <div className="mb-4 border border-gray-200 rounded overflow-hidden flex-grow">
+              {" "}
+              {/* Use flex-grow on the iframe container */}
+              <iframe
+                src={pdfUrl}
+                title="Certificate PDF"
+                className="w-full h-full" // Make iframe take up the full height of its container
+              ></iframe>
+            </div>
+            <div className="flex justify-center space-x-4 mb-4">
+              <button
+                onClick={shareCertificate}
+                className="text-blue-700 hover:text-blue-900"
+              >
+                <FaShare size={24} />
+              </button>
+            </div>
           </div>
-
-          {/* Only LinkedIn Sharing Icon using the Microsoft Share Plugin */}
-          <div className="flex justify-center space-x-4 mb-4">
-            <button
-              onClick={shareCertificate}
-              className="text-blue-700 hover:text-blue-900"
-            >
-              <FaLinkedin size={24} />
-            </button>
-          </div>
-        </div>
+        </main>
       </div>
-      <Footer />
     </div>
   );
 }

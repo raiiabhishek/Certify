@@ -13,11 +13,13 @@ import {
   YAxis,
   CartesianGrid,
   LabelList,
+  Line,
+  ComposedChart, // added ComposedChart
 } from "recharts";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
 import Footer from "../Footer";
-const COLORS = ["#4F46E5", "#10B981"];
+const COLORS = ["#4F46E5", "#10B981", "#EF4444", "#F59E0B"]; // Added two more colors
 import axios from "axios";
 
 export default function Home() {
@@ -28,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [timeSeriesData, setTimeSeriesData] = useState([]);
 
   const handleMouseEnter = (data, index) => {
     setActiveIndex(index);
@@ -64,9 +67,40 @@ export default function Home() {
             Authorization: `Bearer ${authToken}`,
           },
         });
-        console.log(response.data.data);
-        setAnalytics(response.data.data);
+
+        const analyticsData = response.data.data;
+        setAnalytics(analyticsData);
         setLoading(false);
+
+        // Process certificate and report data for the bar chart
+        const certificates = analyticsData?.certificates || [];
+        const reports = analyticsData?.reports || [];
+
+        // Aggregate data by date
+        const aggregatedData = {};
+
+        certificates.forEach((cert) => {
+          const date = formatDate(cert.createdAt);
+          if (!aggregatedData[date]) {
+            aggregatedData[date] = { date, certificates: 0, reports: 0 };
+          }
+          aggregatedData[date].certificates++;
+        });
+
+        reports.forEach((report) => {
+          const date = formatDate(report.createdAt);
+          if (!aggregatedData[date]) {
+            aggregatedData[date] = { date, certificates: 0, reports: 0 };
+          }
+          aggregatedData[date].reports++;
+        });
+
+        // Convert aggregated data to array for Recharts
+        const timeSeriesArray = Object.values(aggregatedData);
+        timeSeriesArray.sort(
+          (a, b) => new Date(parseDate(a.date)) - new Date(parseDate(b.date))
+        ); // Sort by date
+        setTimeSeriesData(timeSeriesArray);
       } catch (e) {
         console.log(e);
         setError("Failed to load analytics data.");
@@ -125,6 +159,41 @@ export default function Home() {
       </g>
     );
   };
+
+  // Function to format the date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("default", { month: "short" }); // Get short month name
+    const year = date.getFullYear();
+
+    // Add ordinal suffix to the day
+    let dayWithSuffix = day;
+    if (day === 1 || day === 21 || day === 31) {
+      dayWithSuffix = `${day}st`;
+    } else if (day === 2 || day === 22) {
+      dayWithSuffix = `${day}nd`;
+    } else if (day === 3 || day === 23) {
+      dayWithSuffix = `${day}rd`;
+    } else {
+      dayWithSuffix = `${day}th`;
+    }
+
+    return `${dayWithSuffix} ${month} ${year}`;
+  };
+
+  // Function to parse formatted date strings back to Date objects
+  const parseDate = (dateString) => {
+    const parts = dateString.split(" ");
+    const day = parseInt(parts[0], 10);
+    const month = parts[1];
+    const year = parseInt(parts[2], 10);
+
+    const monthIndex = new Date(Date.parse(month + " 1, 2000")).getMonth(); // Get month index
+
+    return new Date(year, monthIndex, day);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Nav />
@@ -138,10 +207,10 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-8 mt-4">
             <div className="bg-white p-6 rounded-lg shadow">
               <h2 className="text-xl font-semibold mb-4">
-                Document Distribution
+                Document and User Distribution
               </h2>
               <div className="h-80 w-full flex">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="50%" height="100%">
                   <PieChart>
                     <Pie
                       data={data}
@@ -166,7 +235,7 @@ export default function Home() {
                     <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
                 </ResponsiveContainer>
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="50%" height="100%">
                   <BarChart
                     data={data2}
                     margin={{
@@ -189,6 +258,31 @@ export default function Home() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+            {/* Bar Chart Section */}
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">
+                Certificates and Reports per Day
+              </h2>
+              <ResponsiveContainer width="100%" height={400}>
+                <ComposedChart
+                  data={timeSeriesData}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="certificates" barSize={20} fill="#413ea0" />
+                  <Bar dataKey="reports" barSize={20} fill="#ff7300" />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </main>

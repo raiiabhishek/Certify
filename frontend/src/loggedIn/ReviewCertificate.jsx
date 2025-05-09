@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
-import Nav from "./Nav";
+import Sidebar from "./Sidebar"; // Import the Sidebar
 import Footer from "../Footer";
+import { AuthContext } from "../../AuthContext";
 
 const api = import.meta.env.VITE_URL;
 
@@ -15,6 +16,8 @@ export default function ReviewCertificate() {
   const [templateVariables, setTemplateVariables] = useState({});
   const [reportModalOpen, setReportModalOpen] = useState(false); // State to manage report modal visibility
   const [reportReason, setReportReason] = useState(""); // State to store the report reason
+  const { authToken } = useContext(AuthContext);
+
   function textToNumber(inputString) {
     const numberMappingReverse = {
       abc: "0",
@@ -43,6 +46,7 @@ export default function ReviewCertificate() {
 
     return outputString;
   }
+
   useEffect(() => {
     const fetchCertificateData = async () => {
       setLoading(true);
@@ -54,7 +58,12 @@ export default function ReviewCertificate() {
         );
         setData(response.data);
         const res = await axios.get(
-          `${api}/templates/getById/${response.data.templateId}`
+          `${api}/templates/getById/${response.data.templateId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
         );
         setSelectedTemplate(res.data);
 
@@ -90,7 +99,7 @@ export default function ReviewCertificate() {
     };
 
     fetchCertificateData();
-  }, [certificateId]);
+  }, [certificateId, authToken]);
 
   const handleReportClick = () => {
     setReportModalOpen(true);
@@ -111,6 +120,11 @@ export default function ReviewCertificate() {
         `${api}/certificate/report/${certificateId}`,
         {
           comment: reportReason,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
         }
       );
       if (response.status === 201) {
@@ -144,6 +158,7 @@ export default function ReviewCertificate() {
       />
     );
   };
+
   if (loading) {
     return <div className="text-center mt-4">Loading...</div>;
   }
@@ -153,48 +168,51 @@ export default function ReviewCertificate() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav />
-      <div className="container mx-auto p-4">
-        {/* Report Button */}
-        <button
-          onClick={handleReportClick}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
-        >
-          Report
-        </button>
+    <div className="min-h-screen flex">
+      <Sidebar />
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+        <main className="container mx-auto p-4">
+          {/* Report Button */}
+          <button
+            onClick={handleReportClick}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
+          >
+            Report
+          </button>
 
-        {renderPreview()}
-      </div>
-      {/* Report Modal */}
-      {reportModalOpen && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
-          <div className="bg-white p-5 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Report Certificate</h2>
-            <textarea
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              placeholder="Please enter the reason for reporting this certificate."
-              className="border rounded p-2 w-full mb-4"
-            ></textarea>
-            <div className="flex justify-end">
-              <button
-                onClick={closeReportModal}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReportSubmit}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Submit Report
-              </button>
+          {renderPreview()}
+        </main>
+
+        {/* Report Modal */}
+        {reportModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
+            <div className="bg-white p-5 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4">Report Certificate</h2>
+              <textarea
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                placeholder="Please enter the reason for reporting this certificate."
+                className="border rounded p-2 w-full mb-4"
+              ></textarea>
+              <div className="flex justify-end">
+                <button
+                  onClick={closeReportModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReportSubmit}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Submit Report
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      <Footer />
+        )}
+        <Footer />
+      </div>
     </div>
   );
 }

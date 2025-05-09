@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
-import Nav from "./Nav";
+import Sidebar from "./Sidebar";
 import Footer from "../Footer";
 import { useNavigate } from "react-router";
 
@@ -100,58 +100,57 @@ function TemplateSelector({ onSelectTemplate }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav />
-      <div className="flex flex-1 overflow-hidden ">
-        {/* Template List on the Left */}
-        <div className="w-full border-r p-5 flex flex-col">
-          <div className="mb-5 p-3 border rounded bg-gray-100">
-            <h2 className="mb-3 font-semibold text-lg">Choose a Template</h2>
-            <div className="flex items-center space-x-3 mb-4">
-              <label
-                htmlFor="templateType"
-                className="p-2 border rounded bg-white"
-              >
-                Filter by Type:
-              </label>
-              <select
-                id="templateType"
-                value={templateType}
-                onChange={handleTypeChange}
-                className="p-2 border rounded bg-white"
-              >
-                {templateTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </option>
-                ))}
-              </select>
+    <div className="min-h-screen flex">
+      <Sidebar />
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+        <main className="flex-1 overflow-hidden p-4">
+          <div className="w-full">
+            <div className="mb-5 p-3 border rounded bg-gray-100">
+              <h2 className="mb-3 font-semibold text-lg">Choose a Template</h2>
+              <div className="flex items-center space-x-3 mb-4">
+                <label
+                  htmlFor="templateType"
+                  className="p-2 border rounded bg-white"
+                >
+                  Filter by Type:
+                </label>
+                <select
+                  id="templateType"
+                  value={templateType}
+                  onChange={handleTypeChange}
+                  className="p-2 border rounded bg-white"
+                >
+                  {templateTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {error && <p className="text-red-500">{error}</p>}
             </div>
-            {error && <p className="text-red-500">{error}</p>}
+
+            <ul className="overflow-y-auto flex-1 pr-3 grid grid-cols-1 place-items-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-4">
+              {filteredTemplates && filteredTemplates.length > 0 ? (
+                filteredTemplates.map((template) => (
+                  <li key={template._id} className="mb-2">
+                    <MiniPreview
+                      htmlContent={template.htmlContent}
+                      templateId={template._id}
+                      onGenerate={handleGenerateCertificate}
+                    />
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-600">
+                  No templates available for the given type
+                </p>
+              )}
+            </ul>
           </div>
-
-          <ul className="overflow-y-auto flex-1 pr-3 grid grid-cols-3 gap-4">
-            {filteredTemplates && filteredTemplates.length > 0 ? (
-              filteredTemplates.map((template) => (
-                <li key={template._id} className="mb-2">
-                  <MiniPreview
-                    htmlContent={template.htmlContent}
-                    templateId={template._id}
-                    onGenerate={handleGenerateCertificate}
-                  />
-                </li>
-              ))
-            ) : (
-              <p className="text-gray-600">
-                No templates available for the given type
-              </p>
-            )}
-          </ul>
-        </div>
-
-        {/* No Preview Area on the Right anymore */}
+        </main>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }

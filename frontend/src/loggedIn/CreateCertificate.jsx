@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
-import Nav from "./Nav";
+import Sidebar from "./Sidebar"; // Import the Sidebar
 import Footer from "../Footer";
 import { useNavigate, useSearchParams } from "react-router";
 
@@ -176,67 +176,73 @@ function CreateCertificate() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Nav />
-      <div className="flex flex-1 overflow-hidden ">
-        {/* Input Fields on the Left */}
-        <div className="w-1/4 border-r p-5 flex flex-col">
-          <div className="mb-5 p-3 border rounded bg-gray-100">
-            <h2 className="mb-3 font-semibold text-lg">Enter Fields</h2>
-            {selectedTemplate?.variables ? (
-              selectedTemplate.variables.map((variable) => (
-                <div key={variable} className="mb-4">
-                  <label
-                    htmlFor={variable}
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    {variable.charAt(0).toUpperCase() + variable.slice(1)}:
-                  </label>
-                  <input
-                    type="text"
-                    id={variable}
-                    name={variable}
-                    value={templateVariables[variable] || ""}
-                    onChange={handleVariableChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  />
+    <div className="min-h-screen flex">
+      <Sidebar /> {/* Render the Sidebar */}
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+        <main className="flex-1 overflow-hidden">
+          <div className="p-4">
+            <div className="flex flex-col lg:flex-row">
+              {/* Input Fields on the Left */}
+              <div className="lg:w-1/4 border-r p-5 flex flex-col">
+                <div className="mb-5 p-3 border rounded bg-gray-100">
+                  <h2 className="mb-3 font-semibold text-lg">Enter Fields</h2>
+                  {selectedTemplate?.variables ? (
+                    selectedTemplate.variables.map((variable) => (
+                      <div key={variable} className="mb-4">
+                        <label
+                          htmlFor={variable}
+                          className="block text-gray-700 text-sm font-bold mb-2"
+                        >
+                          {variable.charAt(0).toUpperCase() + variable.slice(1)}
+                          :
+                        </label>
+                        <input
+                          type="text"
+                          id={variable}
+                          name={variable}
+                          value={templateVariables[variable] || ""}
+                          onChange={handleVariableChange}
+                          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-600">
+                      No fields available for this template
+                    </p>
+                  )}
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-600">
-                No fields available for this template
-              </p>
-            )}
-          </div>
-        </div>
+              </div>
 
-        {/* Preview Area on the Right */}
-        <div className="flex-1 p-5 relative">
-          <div className="flex justify-between mb-3">
-            <h2 className="mb-4 font-semibold text-lg">Preview</h2>
-            <div className="flex gap-2">
-              <button
-                onClick={onGenerateCertificate}
-                className=" bg-green-500 text-white p-2 rounded cursor-pointer hover:bg-green-600 "
-              >
-                Generate Certificate
-              </button>
-              <button
-                onClick={handleBulkUploadClick}
-                className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600"
-              >
-                Bulk Generate
-              </button>
+              {/* Preview Area on the Right */}
+              <div className="flex-1 p-5 relative">
+                <div className="flex justify-between mb-3">
+                  <h2 className="mb-4 font-semibold text-lg">Preview</h2>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={onGenerateCertificate}
+                      className=" bg-green-500 text-white p-2 rounded cursor-pointer hover:bg-green-600 "
+                    >
+                      Generate Certificate
+                    </button>
+                    <button
+                      onClick={handleBulkUploadClick}
+                      className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600"
+                    >
+                      Bulk Generate
+                    </button>
+                  </div>
+                </div>
+
+                <div className="border rounded p-5 max-w-full overflow-auto">
+                  {renderPreview()}
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="border rounded p-5 max-w-full overflow-auto">
-            {renderPreview()}
-          </div>
-        </div>
+        </main>
+        <Footer />
       </div>
-      <Footer />
-
       {/* Bulk Upload Modal */}
       {showBulkUploadModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">

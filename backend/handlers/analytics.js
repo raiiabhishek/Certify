@@ -12,12 +12,16 @@ const analytics = async (req, res) => {
   const verifiedCounts = await UserModel.countDocuments({
     status: "verified",
   });
+  const certificates = await CertificateModel.find();
+  const reports = await ReportModel.find();
   res.status(200).send({
     data: {
       certificateCount,
       reportCount,
       verifiedCounts,
       unverifiedCounts,
+      certificates,
+      reports,
     },
   });
 };
