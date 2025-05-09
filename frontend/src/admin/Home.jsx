@@ -58,6 +58,40 @@ export default function Home() {
 
     return null;
   };
+  // Function to format the date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("default", { month: "short" }); // Get short month name
+    const year = date.getFullYear();
+
+    // Add ordinal suffix to the day
+    let dayWithSuffix = day;
+    if (day === 1 || day === 21 || day === 31) {
+      dayWithSuffix = `${day}st`;
+    } else if (day === 2 || day === 22) {
+      dayWithSuffix = `${day}nd`;
+    } else if (day === 3 || day === 23) {
+      dayWithSuffix = `${day}rd`;
+    } else {
+      dayWithSuffix = `${day}th`;
+    }
+
+    return `${dayWithSuffix} ${month} ${year}`;
+  };
+
+  // Function to parse formatted date strings back to Date objects
+  const parseDate = (dateString) => {
+    const parts = dateString.split(" ");
+    const day = parseInt(parts[0], 10);
+    const month = parts[1];
+    const year = parseInt(parts[2], 10);
+
+    const monthIndex = new Date(Date.parse(month + " 1, 2000")).getMonth(); // Get month index
+
+    return new Date(year, monthIndex, day);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -158,40 +192,6 @@ export default function Home() {
         </text>
       </g>
     );
-  };
-
-  // Function to format the date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString("default", { month: "short" }); // Get short month name
-    const year = date.getFullYear();
-
-    // Add ordinal suffix to the day
-    let dayWithSuffix = day;
-    if (day === 1 || day === 21 || day === 31) {
-      dayWithSuffix = `${day}st`;
-    } else if (day === 2 || day === 22) {
-      dayWithSuffix = `${day}nd`;
-    } else if (day === 3 || day === 23) {
-      dayWithSuffix = `${day}rd`;
-    } else {
-      dayWithSuffix = `${day}th`;
-    }
-
-    return `${dayWithSuffix} ${month} ${year}`;
-  };
-
-  // Function to parse formatted date strings back to Date objects
-  const parseDate = (dateString) => {
-    const parts = dateString.split(" ");
-    const day = parseInt(parts[0], 10);
-    const month = parts[1];
-    const year = parseInt(parts[2], 10);
-
-    const monthIndex = new Date(Date.parse(month + " 1, 2000")).getMonth(); // Get month index
-
-    return new Date(year, monthIndex, day);
   };
 
   return (
