@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
 import Footer from "../Footer";
+import { useNavigate } from "react-router";
 
 export default function UserList() {
   const api = import.meta.env.VITE_URL;
@@ -13,7 +14,7 @@ export default function UserList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterVerified, setFilterVerified] = useState("all");
   const [filteredUsers, setFilteredUsers] = useState([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -143,7 +144,14 @@ export default function UserList() {
               <tbody>
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b">{user.name}</td>
+                    <td
+                      className="py-2 px-4 border-b"
+                      onClick={() => {
+                        navigate(`/admin/profile/${user._id}`);
+                      }}
+                    >
+                      {user.name}
+                    </td>
                     <td className="py-2 px-4 border-b">{user.email}</td>
                     <td className="py-2 px-4 border-b">
                       {user.registrationNumber}

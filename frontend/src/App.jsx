@@ -21,6 +21,7 @@ import CertificateDisplay from "./loggedIn/CertificateDIsplay";
 import ReviewCertificate from "./loggedIn/ReviewCertificate";
 import AllCerts from "./loggedIn/AllCerts";
 import AllReports from "./loggedIn/AllReports";
+import ProfilePage from "./admin/Profile";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -47,6 +48,7 @@ function App() {
           <Route path="users" element={<AUserList />} />
           <Route path="certificates" element={<ACertificates />} />
           <Route path="reports" element={<AReports />} />
+          <Route path="profile/:id" element={<ProfilePage />} />
         </Route>
       </Route>
     )
