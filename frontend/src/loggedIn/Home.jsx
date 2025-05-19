@@ -30,6 +30,7 @@ export default function Home() {
             Authorization: `Bearer ${authToken}`,
           },
         });
+        console.log(response.data);
         setUser(response.data.data);
         setLoading(false);
       } catch (e) {

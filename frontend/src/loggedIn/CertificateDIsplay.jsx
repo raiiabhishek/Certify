@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, use } from "react";
 import axios from "axios";
 import { AuthContext } from "../../AuthContext";
 import { FaLinkedin, FaShare } from "react-icons/fa";
 import { useParams } from "react-router";
 import Footer from "../Footer";
-import Sidebar from "./Sidebar"; // Import the Sidebar
-
+import Sidebar from "./Sidebar";
+import Nav from "../admin/Nav";
 export default function CertificateDisplay() {
   const api = import.meta.env.VITE_URL;
   const { pdfPath } = useParams();
@@ -13,7 +13,7 @@ export default function CertificateDisplay() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { role } = useContext(AuthContext);
   function textToNumber(inputString) {
     const numberMappingReverse = {
       abc: "0",
@@ -105,7 +105,6 @@ export default function CertificateDisplay() {
   if (loading) {
     return (
       <div className="min-h-screen flex">
-        <Sidebar />
         <div className="flex-1 ml-0 md:ml-64 flex flex-col">
           <div className="flex justify-center items-center h-screen">
             Loading certificate...
@@ -119,7 +118,6 @@ export default function CertificateDisplay() {
   if (error) {
     return (
       <div className="min-h-screen flex">
-        <Sidebar />
         <div className="flex-1 ml-0 md:ml-64 flex flex-col">
           <div className="flex justify-center items-center h-screen text-red-500">
             {error}
@@ -133,7 +131,6 @@ export default function CertificateDisplay() {
   if (!pdfUrl) {
     return (
       <div className="min-h-screen flex">
-        <Sidebar />
         <div className="flex-1 ml-0 md:ml-64 flex flex-col">
           <div className="flex justify-center items-center h-screen">
             No Certificate to display
@@ -146,8 +143,9 @@ export default function CertificateDisplay() {
 
   return (
     <div className="min-h-screen flex">
-      <Sidebar />
-      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+      {role === "admin" ? <Nav /> : role === "user" ? <Sidebar /> : null}
+
+      <div className="flex-1 ml-0 md:ml-34 flex flex-col">
         <main className="container mx-auto p-4 flex-grow">
           {" "}
           {/* Use flex-grow to fill available space */}

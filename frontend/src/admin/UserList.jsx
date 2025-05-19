@@ -145,7 +145,7 @@ export default function UserList() {
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td
-                      className="py-2 px-4 border-b"
+                      className="py-2 px-4 text-blue-500 border-b underline underline-offset-4 "
                       onClick={() => {
                         navigate(`/admin/profile/${user._id}`);
                       }}

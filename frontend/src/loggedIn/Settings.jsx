@@ -1,23 +1,60 @@
-import React, { useState, useEffect } from "react";
-import Nav from "../Nav";
-import Footer from "../Footer";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { AuthContext } from "../../AuthContext";
+import Sidebar from "./Sidebar";
 
-const SignUp = () => {
+const Settings = () => {
   const api = import.meta.env.VITE_URL;
+  const { authToken } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    image: null,
     name: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-    agreeToTerms: false,
     registrationNumber: "",
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${api}/dashboard`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (response.data && response.data.data) {
+          setFormData((prevData) => ({
+            ...prevData,
+            name: response.data.data.name || "",
+            email: response.data.data.email || "",
+            phone: response.data.data.phone || "",
+            registrationNumber: response.data.data.registrationNumber || "",
+          }));
+        } else {
+          setError("Failed to load settings.");
+        }
+      } catch (error) {
+        setError(
+          `${
+            error.response?.data?.msg || "An error occurred."
+          } Try again later.`
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, [api, authToken]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -27,36 +64,50 @@ const SignUp = () => {
     });
   };
 
-  const handleRoleChange = async (e) => {
-    handleInputChange(e);
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, image: e.target.files[0] });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
+    if (
+      formData.password &&
+      formData.confirmPassword &&
+      formData.password !== formData.confirmPassword
+    ) {
       setError("Passwords do not match");
       return;
     }
+
     setLoading(true);
     setError(null);
 
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);
     formDataToSend.append("email", formData.email);
-    formDataToSend.append("password", formData.password);
     formDataToSend.append("phone", formData.phone);
     formDataToSend.append("registrationNumber", formData.registrationNumber);
+    if (formData.image) {
+      formDataToSend.append("image", formData.image);
+    }
+    if (formData.password) {
+      formDataToSend.append("password", formData.password);
+    }
 
     try {
-      const response = await axios.post(`${api}/signup`, formDataToSend, {
+      const response = await axios.post(`${api}/settings`, formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${authToken}`,
         },
       });
 
-      console.log(response);
+      console.log(response.data);
+
       if (response.data.status === "success") {
-        navigate("/login");
+        alert("Settings updated successfully!");
+      } else {
+        setError(response.data.msg || "Failed to update settings.");
       }
     } catch (error) {
       setError(
@@ -68,21 +119,37 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gray-100">
-      {" "}
-      {/* Updated Container */}
-      <Nav />
-      <div className="flex justify-center items-center flex-grow">
-        {" "}
-        {/* Updated Container */}
+    <div className="min-h-screen flex">
+      <Sidebar />
+      <div className="flex-grow flex flex-col justify-center items-center bg-gray-100">
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-xl bg-white p-6 rounded-lg shadow-md space-y-4 mx-auto"
+          className="w-full max-w-xl bg-white p-6 rounded-lg shadow-md space-y-4"
         >
           <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-3xl font-bold mb-6 text-gray-800">
-            <span className="text-blue-500">Register </span>
-            Your Account
+            <span className="text-blue-500">Update </span>
+            Your Settings
           </h1>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Profile Picture / Logo
+            </label>
+            <input
+              type="file"
+              name="image"
+              onChange={handleFileChange}
+              className="block w-full mt-1 text-sm text-grey-700 file:mr-4 file:py-2 file:px-4 file:border file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 rounded"
+            />
+            {formData.image && typeof formData.image === "string" && (
+              <img
+                src={formData.image}
+                alt="current profile"
+                className="mt-2 h-20 w-20 rounded-full object-cover"
+              />
+            )}
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -148,48 +215,33 @@ const SignUp = () => {
           <div className="grid lg:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Password
+                New Password
               </label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                required
+                placeholder="New Password"
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Confirm Password
+                Confirm New Password
               </label>
               <input
                 type="password"
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                required
+                placeholder="Confirm New Password"
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
               />
             </div>
           </div>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="agreeToTerms"
-              checked={formData.agreeToTerms}
-              onChange={handleInputChange}
-              required
-              className="h-4 w-4 text-blue-500 border rounded focus:ring-blue-500"
-            />
-            <label className="ml-2 text-sm text-gray-700">
-              I agree to the{" "}
-              <a href="#" className="text-blue-500 underline">
-                terms and conditions
-              </a>
-            </label>
-          </div>
+
           {error && <div className="text-red-500">{error}</div>}
           <button
             type="submit"
@@ -200,13 +252,12 @@ const SignUp = () => {
                 : "bg-green-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? "Submitting..." : "Register"}
+            {loading ? "Saving..." : "Save Settings"}
           </button>
         </form>
       </div>
-      <Footer />
     </div>
   );
 };
 
-export default SignUp;
+export default Settings;

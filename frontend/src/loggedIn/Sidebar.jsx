@@ -8,14 +8,16 @@ import {
   FaSignOutAlt,
   FaBars,
   FaTimes,
+  FaCog,
 } from "react-icons/fa";
 import { MdReport } from "react-icons/md";
 import { GrCertificate } from "react-icons/gr";
 import { PiCertificateFill } from "react-icons/pi";
+
 export default function Sidebar() {
   const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false); // State for mobile menu
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -28,26 +30,22 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button (Hamburger) */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden fixed top-4 left-4 bg-[#2c4036] text-white p-2 rounded-md z-50" // Hidden on larger screens
+        className="md:hidden fixed top-4 left-4 bg-[#2c4036] text-white p-2 rounded-md z-50"
       >
         {isOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      {/* Sidebar */}
       <aside
         className={`bg-[#2c4036] text-white h-screen fixed top-0 left-0 flex flex-col py-8 px-4 z-40 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:w-64 w-full max-w-sm`} //Full width on mobile, fixed width on desktop
+        } md:translate-x-0 md:w-64 w-full max-w-sm`}
       >
-        {/* Brand/Logo */}
         <Link to="/" className="text-2xl font-bold mb-8 text-center">
           Certify
         </Link>
 
-        {/* Navigation Links */}
         <nav className="flex flex-col gap-4">
           <NavLink
             to="/home"
@@ -94,9 +92,19 @@ export default function Sidebar() {
             <MdReport className="mr-2" />
             Reports
           </NavLink>
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex items-center py-2 px-4 rounded-md hover:bg-[#3e5a4a] ${
+                isActive ? "bg-[#3e5a4a] font-semibold" : ""
+              }`
+            }
+          >
+            <FaCog className="mr-2" />
+            Settings
+          </NavLink>
         </nav>
 
-        {/* Logout Button */}
         <button
           onClick={handleLogout}
           className="mt-auto bg-red-500 rounded px-4 py-2 font-bold hover:bg-red-600 flex items-center justify-center"
@@ -105,7 +113,6 @@ export default function Sidebar() {
           Log Out
         </button>
       </aside>
-      {/* Overlay (for mobile) */}
       {isOpen && (
         <div
           className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-30 md:hidden"

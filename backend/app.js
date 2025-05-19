@@ -47,7 +47,6 @@ mongoose
 // Routes
 app.post("/login", login);
 app.post("/signUp/", uploadMiddleware, signUp);
-app.post("/settings", uploadMiddleware, settings);
 app.post("/forgot-password", forgotPassword.forgotPassword);
 app.post("/reset-password/:token", forgotPassword.resetPassword);
 app.get("/getUser/:id", getUserByID);
@@ -56,6 +55,7 @@ app.use("/admin", adminRouter);
 app.use("/templates", templateRouter);
 app.use("/certificate", certificateRouter);
 app.use(auth);
+app.post("/settings", uploadMiddleware, settings);
 app.get("/analytics", analytics);
 app.get("/profile/:id", profile);
 app.get("/dashboard", user);

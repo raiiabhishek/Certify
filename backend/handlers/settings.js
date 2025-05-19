@@ -18,31 +18,41 @@ const settings = async (req, res) => {
   const image = req.files?.image?.[0]
     ? path.basename(req.files.image[0].path)
     : null;
-
-  const encPass = await bcrypt.hash(password, 10);
+  console.log("here in settings");
   try {
-    const userExists = await UserModel.findOne({ email });
-    if (userExists) {
-      return res
-        .status(400)
-        .json({ message: "User with that email already exists." });
+    const userExists = await UserModel.findById(req.user._id);
+    if (!userExists) {
+      return res.status(400).json({ message: "User doesnot exists." });
     }
     let userData;
     // Handle candidate signup with resume processing logic.
 
     try {
-      userData = await UserModel.findByIdAndUpdate(req.user._id, {
-        name,
-        email,
-        phone,
-        password: encPass,
-        image,
-        course,
-      });
+      if (password) {
+        const encPass = await bcrypt.hash(password, 10);
+        userData = await UserModel.findByIdAndUpdate(req.user._id, {
+          name,
+          email,
+          phone,
+          password: encPass,
+          image,
+          course,
+        });
+      } else {
+        console.log("in updater");
+        userData = await UserModel.findByIdAndUpdate(req.user._id, {
+          name,
+          email,
+          phone,
+          image,
+          course,
+        });
+      }
     } catch (e) {
+      console.log(e);
       return res.status(500).json({
         status: "failed",
-        msg: "Failed to process resume.",
+        msg: "Failed to process ",
       });
     }
     // Send Welcome Email
@@ -53,7 +63,7 @@ const settings = async (req, res) => {
       html: `<h1>Hello, ${name}!</h1>
                <p>Your details have been updated.</p>
                <p>If you have any questions or need assistance, feel free to contact us.</p>
-               <p>Best regards,<br>DevX</p>`,
+               <p>Best regards,<br>Certify</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -65,7 +75,7 @@ const settings = async (req, res) => {
     });
     res.status(200).json({ status: "success", msg: "updated", data: userData });
   } catch (e) {
-    console.error("Signup error:", e);
+    console.error("Settings error:", e);
     if (e.name === "ValidationError") {
       return res
         .status(400)

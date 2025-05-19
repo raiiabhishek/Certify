@@ -22,6 +22,7 @@ import ReviewCertificate from "./loggedIn/ReviewCertificate";
 import AllCerts from "./loggedIn/AllCerts";
 import AllReports from "./loggedIn/AllReports";
 import ProfilePage from "./admin/Profile";
+import Settings from "./loggedIn/Settings";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -42,6 +43,7 @@ function App() {
         />
         <Route path="/certificates" element={<AllCerts />} />
         <Route path="/reports" element={<AllReports />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/admin">
           {/* Nested Route for /admin/teacher */}
           <Route path="home" element={<AHome />} />
