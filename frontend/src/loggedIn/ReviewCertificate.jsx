@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
-import Sidebar from "./Sidebar"; // Import the Sidebar
+import Sidebar from "./Sidebar";
 import Footer from "../Footer";
 import { AuthContext } from "../../AuthContext";
-
+import Nav from "../Nav";
 const api = import.meta.env.VITE_URL;
 
 export default function ReviewCertificate() {
@@ -167,19 +167,17 @@ export default function ReviewCertificate() {
     return <div className="text-center mt-4 text-red-600">Error: {error}</div>;
   }
 
-  return (
+  return authToken ? (
     <div className="min-h-screen flex">
       <Sidebar />
       <div className="flex-1 ml-0 md:ml-64 flex flex-col">
         <main className="container mx-auto p-4">
-          {/* Report Button */}
           <button
             onClick={handleReportClick}
             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
           >
             Report
           </button>
-
           {renderPreview()}
         </main>
 
@@ -213,6 +211,48 @@ export default function ReviewCertificate() {
         )}
         <Footer />
       </div>
+    </div>
+  ) : (
+    <div className="min-h-screen">
+      <Nav />
+      <main className="container mx-auto p-4">
+        <button
+          onClick={handleReportClick}
+          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
+        >
+          Report
+        </button>
+        {renderPreview()}
+      </main>
+
+      {/* Report Modal */}
+      {reportModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
+          <div className="bg-white p-5 rounded shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Report Certificate</h2>
+            <textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              placeholder="Please enter the reason for reporting this certificate."
+              className="border rounded p-2 w-full mb-4"
+            ></textarea>
+            <div className="flex justify-end">
+              <button
+                onClick={closeReportModal}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReportSubmit}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

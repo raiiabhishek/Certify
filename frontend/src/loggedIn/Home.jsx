@@ -1,6 +1,13 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 import {
   AiOutlineAlignCenter,
   AiOutlineFileText,
@@ -8,10 +15,9 @@ import {
 } from "react-icons/ai";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
-import Sidebar from "./Sidebar"; // Import the Sidebar
-import Footer from "../Footer";
+import Sidebar from "./Sidebar";
 
-const COLORS = ["#4F46E5", "#10B981"];
+const COLORS = ["#346f73", "#f3730e"];
 
 export default function Home() {
   const api = import.meta.env.VITE_URL;
@@ -20,7 +26,14 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const handleMouseEnter = (data, index) => {
+    setActiveIndex(index);
+  };
 
+  const handleMouseLeave = () => {
+    setActiveIndex(null);
+  };
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -42,7 +55,24 @@ export default function Home() {
       fetchProfile();
     }
   }, [authToken, api]);
+  const renderCustomTooltip = ({ payload, label }) => {
+    if (payload && payload.length) {
+      const dataPoint = payload[0].payload;
+      const percentage = (
+        (dataPoint.value / data.reduce((sum, d) => sum + d.value, 0)) *
+        100
+      ).toFixed(2);
 
+      return (
+        <div className="backdrop-blur-md bg-white/30 p-2 border border-gray-200/50 shadow-md rounded-md">
+          <p className="font-bold text-gray-800">{`${dataPoint.name}: ${percentage}%`}</p>
+          <p className="text-gray-600">{`Value: ${dataPoint.value}`}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -141,7 +171,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="relative">
             <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
-              Welcome <span className="text-indigo-600">{user?.name} </span> !
+              Activity dashboard of{" "}
+              <span className="text-[#2c4036]">{user?.name} </span>
             </h1>
           </div>
           <div className="grid grid-cols-1 gap-8 mt-4">
@@ -160,6 +191,9 @@ export default function Home() {
                       outerRadius={120}
                       fill="#8884d8"
                       dataKey="value"
+                      activeIndex={activeIndex}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
                     >
                       {data.map((entry, index) => (
                         <Cell
@@ -168,6 +202,7 @@ export default function Home() {
                         />
                       ))}
                     </Pie>
+                    <Tooltip content={renderCustomTooltip} />
                     <Legend verticalAlign="bottom" height={36} />
                   </PieChart>
                 </ResponsiveContainer>
@@ -176,23 +211,23 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
               <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
-                <AiOutlineAlignCenter className="h-8 w-8 text-indigo-600 mr-4" />
+                <AiOutlineAlignCenter className="h-8 w-8 text-[#346f73] mr-4" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
                     Total Certificates
                   </h3>
-                  <p className="text-2xl font-semibold text-indigo-600">
+                  <p className="text-2xl font-semibold text-[#346f73]">
                     {user?.certificates?.length || 0}
                   </p>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
-                <AiOutlineFileText className="h-8 w-8 text-emerald-600 mr-4" />
+                <AiOutlineFileText className="h-8 w-8 text-[#f3730e] mr-4" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
                     Total Reports
                   </h3>
-                  <p className="text-2xl font-semibold text-emerald-600">
+                  <p className="text-2xl font-semibold text-[#f3730e]">
                     {user?.reports?.length || 0}
                   </p>
                 </div>

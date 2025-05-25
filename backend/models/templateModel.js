@@ -14,7 +14,7 @@ const templateSchema = new mongoose.Schema({
       "participation",
       "competition",
       "job",
-      "internship",
+      "internship", //add category here
     ],
   },
   variables: { type: [String], default: [] },

@@ -24,8 +24,8 @@ mongoose
 
 const templatesData = [
   {
-    name: "Education Template",
-    type: "education",
+    name: "Internship Template",
+    type: "internship",
     htmlContent: `<div style="font-family: 'Arial', sans-serif; width: 800px; padding: 50px; border: 2px solid #4a7729; margin: auto; position: relative;">
         <div style="text-align: center; margin-bottom: 40px;">
             <h1 style="font-size: 2.5em; color: #2a52be; margin-bottom: 10px;">Certificate of Education</h1>

@@ -1,19 +1,24 @@
-import React, { useState, useEffect, useContext, use } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../AuthContext";
-import { FaLinkedin, FaShare } from "react-icons/fa";
+import {
+  FaLinkedin,
+  FaShareAlt,
+  FaFacebookF,
+  FaEnvelope,
+} from "react-icons/fa";
 import { useParams } from "react-router";
 import Footer from "../Footer";
 import Sidebar from "./Sidebar";
 import Nav from "../admin/Nav";
+
 export default function CertificateDisplay() {
   const api = import.meta.env.VITE_URL;
   const { pdfPath } = useParams();
-  const { authToken } = useContext(AuthContext);
+  const { authToken, role } = useContext(AuthContext);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { role } = useContext(AuthContext);
+
   function textToNumber(inputString) {
     const numberMappingReverse = {
       abc: "0",
@@ -29,17 +34,10 @@ export default function CertificateDisplay() {
     };
 
     let outputString = "";
-
     for (let i = 0; i < inputString.length; i += 3) {
-      const batch = inputString.substring(i, i + 3); // Extract a 3-character batch
-
-      if (numberMappingReverse[batch]) {
-        outputString += numberMappingReverse[batch]; // If the batch is a code, add the corresponding number
-      } else {
-        outputString += batch; // Otherwise, keep the batch as it is
-      }
+      const batch = inputString.substring(i, i + 3);
+      outputString += numberMappingReverse[batch] || batch;
     }
-
     return outputString;
   }
 
@@ -51,7 +49,6 @@ export default function CertificateDisplay() {
       try {
         const cert = textToNumber(pdfPath);
         const certificateURL = `${api}/certificates/${cert}`;
-
         setPdfUrl(certificateURL);
       } catch (err) {
         console.error("Error fetching certificate:", err);
@@ -72,19 +69,13 @@ export default function CertificateDisplay() {
   const shareCertificate = () => {
     if (!pdfUrl) return;
 
-    // Try using Microsoft share plugin if available
-    if (
-      window.MicrosoftSharePlugin &&
-      typeof window.MicrosoftSharePlugin.share === "function"
-    ) {
+    if (window.MicrosoftSharePlugin?.share) {
       window.MicrosoftSharePlugin.share({
         url: pdfUrl,
         title: "My Certificate",
         summary: "Check out my certificate!",
       });
-    }
-    // Fallback to the Web Share API if supported
-    else if (navigator.share) {
+    } else if (navigator.share) {
       navigator
         .share({
           title: "My Certificate",
@@ -92,48 +83,27 @@ export default function CertificateDisplay() {
           url: pdfUrl,
         })
         .catch((err) => console.error("Error sharing:", err));
-    }
-    // Fallback to opening a LinkedIn share URL if none of the above work
-    else {
+    } else {
       const url = `https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
         pdfUrl
-      )}&title=My%20Certificate&summary=Check%20out%20my%20certificate!`;
+      )}&title=My%20Certificate`;
       window.open(url, "_blank", "noopener,noreferrer");
     }
   };
 
-  if (loading) {
+  if (loading || error || !pdfUrl) {
     return (
-      <div className="min-h-screen flex">
-        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
-          <div className="flex justify-center items-center h-screen">
-            Loading certificate...
-          </div>
-          <Footer />
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex">
-        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
-          <div className="flex justify-center items-center h-screen text-red-500">
-            {error}
-          </div>
-          <Footer />
-        </div>
-      </div>
-    );
-  }
-
-  if (!pdfUrl) {
-    return (
-      <div className="min-h-screen flex">
-        <div className="flex-1 ml-0 md:ml-64 flex flex-col">
-          <div className="flex justify-center items-center h-screen">
-            No Certificate to display
+      <div className="min-h-screen flex bg-gray-50">
+        {role === "admin" ? <Nav /> : role === "user" ? <Sidebar /> : null}
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col justify-center items-center">
+          <div className="text-center p-6">
+            {loading ? (
+              <p className="text-lg text-gray-600">Loading certificate...</p>
+            ) : error ? (
+              <p className="text-lg text-red-500">{error}</p>
+            ) : (
+              <p className="text-lg text-gray-600">No Certificate to display</p>
+            )}
           </div>
           <Footer />
         </div>
@@ -142,32 +112,60 @@ export default function CertificateDisplay() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gray-50">
       {role === "admin" ? <Nav /> : role === "user" ? <Sidebar /> : null}
 
-      <div className="flex-1 ml-0 md:ml-34 flex flex-col">
-        <main className="container mx-auto p-4 flex-grow">
-          {" "}
-          {/* Use flex-grow to fill available space */}
-          <div className="bg-white shadow-md rounded-lg p-6 h-full flex flex-col">
-            {" "}
-            {/* Make the content area a flex container */}
-            <div className="mb-4 border border-gray-200 rounded overflow-hidden flex-grow">
-              {" "}
-              {/* Use flex-grow on the iframe container */}
+      <div className="flex-1 ml-0 md:ml-64 flex flex-col">
+        <main className="container mx-auto px-4 py-8 flex-grow">
+          <div className="bg-white shadow-md rounded-lg p-4">
+            <div className="mb-4 border border-gray-300 rounded overflow-hidden h-[75vh]">
               <iframe
                 src={pdfUrl}
                 title="Certificate PDF"
-                className="w-full h-full" // Make iframe take up the full height of its container
+                className="w-full h-full"
               ></iframe>
             </div>
-            <div className="flex justify-center space-x-4 mb-4">
+
+            <div className="flex justify-center gap-3 mt-2">
               <button
                 onClick={shareCertificate}
-                className="text-blue-700 hover:text-blue-900"
+                className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                title="Share"
               >
-                <FaShare size={24} />
+                <FaShareAlt size={18} />
               </button>
+
+              <a
+                href={`https://www.linkedin.com/shareArticle?url=${encodeURIComponent(
+                  pdfUrl
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600"
+                title="LinkedIn"
+              >
+                <FaLinkedin size={18} />
+              </a>
+
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                  pdfUrl
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-blue-700 text-white hover:bg-blue-800"
+                title="Facebook"
+              >
+                <FaFacebookF size={18} />
+              </a>
+
+              <a
+                href={`mailto:?subject=My Certificate&body=Check out my certificate: ${pdfUrl}`}
+                className="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-800"
+                title="Email"
+              >
+                <FaEnvelope size={18} />
+              </a>
             </div>
           </div>
         </main>

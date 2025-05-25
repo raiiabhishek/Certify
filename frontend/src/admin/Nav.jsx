@@ -20,7 +20,10 @@ export default function Sidebar() {
 
   return (
     <aside className="bg-[#2c4036] text-white w-64 min-h-screen py-4 px-3 flex flex-col">
-      <Link to="/" className="text-xl font-bold mb-6 block text-center">
+      <Link
+        to="/admin/home"
+        className="text-xl font-bold mb-6 block text-center"
+      >
         Certify
       </Link>
 

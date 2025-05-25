@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
-import Footer from "../Footer";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 
@@ -24,17 +23,14 @@ export default function CertificatesList() {
             Authorization: `Bearer ${authToken}`,
           },
         });
-
         if (result.status === 200) {
-          console.log(result.data.data);
           setCertificates(result.data.data);
         } else {
           setError(result.data.msg);
         }
-
-        setLoading(false);
       } catch (err) {
         setError("Failed to fetch data.");
+      } finally {
         setLoading(false);
       }
     };
@@ -43,22 +39,16 @@ export default function CertificatesList() {
   }, [api, authToken]);
 
   useEffect(() => {
-    // Filter and search logic for certificates
-    let filteredCertificateList = certificates;
-
-    // Search by any field (template name, template type, creator name, creator email)
+    let filteredList = certificates;
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filteredCertificateList = filteredCertificateList.filter(
-        (certificate) => {
-          const searchString =
-            `${certificate.template.name} ${certificate.template.type} ${certificate.creator.name} ${certificate.creator.email}`.toLowerCase();
-          return searchString.includes(term);
-        }
-      );
+      filteredList = filteredList.filter((certificate) => {
+        const combinedText =
+          `${certificate.template.name} ${certificate.template.type} ${certificate.creator.name} ${certificate.creator.email}`.toLowerCase();
+        return combinedText.includes(term);
+      });
     }
-
-    setFilteredCertificates(filteredCertificateList);
+    setFilteredCertificates(filteredList);
   }, [certificates, searchTerm]);
 
   const handleCertificateRevoke = async (certificateId) => {
@@ -72,8 +62,8 @@ export default function CertificatesList() {
         }
       );
       if (result.status === 200) {
-        setCertificates((prevCertificates) =>
-          prevCertificates.map((certificate) =>
+        setCertificates((prev) =>
+          prev.map((certificate) =>
             certificate._id === certificateId
               ? { ...certificate, status: "revoked" }
               : certificate
@@ -87,7 +77,7 @@ export default function CertificatesList() {
     }
   };
 
-  function numberToText(inputString) {
+  const numberToText = (inputString) => {
     const numberMapping = {
       0: "abc",
       1: "def",
@@ -101,17 +91,11 @@ export default function CertificatesList() {
       9: "bcd",
     };
 
-    let outputString = "";
-    for (let i = 0; i < inputString.length; i++) {
-      const char = inputString[i];
-      if (numberMapping[char]) {
-        outputString += numberMapping[char];
-      } else {
-        outputString += char;
-      }
-    }
-    return outputString;
-  }
+    return inputString
+      .split("")
+      .map((char) => numberMapping[char] || char)
+      .join("");
+  };
 
   const handleViewCertificate = (certificateId) => {
     const enc = numberToText(certificateId);
@@ -127,81 +111,59 @@ export default function CertificatesList() {
     <div className="flex h-screen bg-gray-100">
       <Nav />
       <div className="flex-grow overflow-y-auto">
-        <div className="flex-1 container mx-auto p-5 px-5 lg:px-10 flex flex-col">
+        <div className="container mx-auto p-5 px-5 lg:px-10 flex flex-col">
           <h2 className="text-2xl font-bold mb-4">Manage Certificates</h2>
 
-          {/* Search and Filter */}
-          <div className="mb-4 flex items-center space-x-2 flex-wrap md:flex-nowrap">
+          {/* Search */}
+          <div className="mb-6 flex items-center space-x-2 flex-wrap md:flex-nowrap">
             <input
               type="text"
-              placeholder="Search by anything"
+              placeholder="Search by name, type, or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border rounded px-3 py-2 w-full sm:w-auto mb-2 md:mb-0 focus:outline-none focus:ring focus:ring-blue-200"
             />
           </div>
 
-          {/* Certificate List Table */}
-
-          <div className="overflow-x-auto flex flex-col">
-            <table className="min-w-full bg-white border border-gray-200 shadow-md">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Template Name
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Template Type
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Creator Name
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Creator Email
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCertificates.map((certificate) => (
-                  <tr key={certificate._id} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b">
-                      {certificate.template.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {certificate.template.type}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {certificate.creator.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {certificate.creator.email}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      <button
-                        onClick={() =>
-                          handleViewCertificate(certificate.certificateUrl)
-                        }
-                        className="text-blue-500 hover:bg-gray-300  font-bold py-1 px-2 rounded mr-2"
-                      >
-                        <AiOutlineEye />
-                      </button>
-                      <button
-                        onClick={() => handleCertificateRevoke(certificate._id)}
-                        className="text-red-500 hover:bg-gray-300 font-bold py-1 px-2 rounded"
-                      >
-                        <AiOutlineDelete />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Cards Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCertificates.map((certificate) => (
+              <div
+                key={certificate._id}
+                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all border border-gray-200"
+              >
+                <h3 className="text-lg font-semibold text-black-600">
+                  {certificate.template.name}
+                </h3>
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Type:</strong> {certificate.template.type}
+                </p>
+                <p className="text-sm text-gray-600 mb-1">
+                  <strong>Creator:</strong> {certificate.creator.name}
+                </p>
+                <p className="text-sm text-gray-600 mb-3">
+                  <strong>Email:</strong> {certificate.creator.email}
+                </p>
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() =>
+                      handleViewCertificate(certificate.certificateUrl)
+                    }
+                    className="text-blue-500 hover:bg-gray-100 rounded-full p-2"
+                  >
+                    <AiOutlineEye size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleCertificateRevoke(certificate._id)}
+                    className="text-red-500 hover:bg-gray-100 rounded-full p-2"
+                  >
+                    <AiOutlineDelete size={20} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        <Footer />
       </div>
     </div>
   );

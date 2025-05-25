@@ -2,8 +2,8 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
-import Footer from "../Footer";
 import { useNavigate } from "react-router";
+import { FaCheckCircle, FaUserTimes } from "react-icons/fa";
 
 export default function UserList() {
   const api = import.meta.env.VITE_URL;
@@ -15,6 +15,7 @@ export default function UserList() {
   const [filterVerified, setFilterVerified] = useState("all");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -25,32 +26,26 @@ export default function UserList() {
         });
         if (result.status === 200) {
           setUsers(result.data.data);
-          setLoading(false);
         } else {
-          setError(result.data.data);
-          setLoading(false);
+          setError("Unable to fetch users.");
         }
-      } catch (err) {
+      } catch {
         setError("Failed to fetch users.");
+      } finally {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, [api, authToken]);
 
   useEffect(() => {
-    // Filter and search logic
     let filtered = users;
-
-    // Filter by verified status
     if (filterVerified === "verified") {
       filtered = filtered.filter((user) => user.status === "verified");
     } else if (filterVerified === "not verified") {
       filtered = filtered.filter((user) => user.status === "not verified");
     }
 
-    // Search by name or email
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -65,124 +60,110 @@ export default function UserList() {
 
   const handleVerification = async (userId) => {
     try {
-      console.log(authToken);
       const result = await axios.get(`${api}/admin/verify/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
-      if (result.status === 200) {
-      } else {
-        setError("Failed to update user status");
-      }
-    } catch (err) {
-      setError("Failed to update user status.");
+      if (result.status !== 200) setError("Failed to verify user.");
+    } catch {
+      setError("Failed to verify user.");
     }
   };
+
   const handleRevoke = async (userId) => {
     try {
       const result = await axios.get(`${api}/admin/revoke/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
-      if (result.status === 200) {
-      } else {
-        setError("Failed to update user status");
-      }
-    } catch (err) {
-      setError("Failed to update user status.");
+      if (result.status !== 200) setError("Failed to revoke verification.");
+    } catch {
+      setError("Failed to revoke verification.");
     }
   };
 
-  if (loading)
-    return <div className="text-center text-gray-700">Loading...</div>;
-  if (error)
-    return <div className="text-center text-red-500">Error: {error}</div>;
+  if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
+  if (error) return <div className="text-center py-10 text-red-600">Error: {error}</div>;
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       <Nav />
-      <div className="flex-grow overflow-y-auto">
-        <div className="flex-1 container mx-auto p-5 px-5 lg:px-10 flex flex-col">
-          <h2 className="text-2xl font-bold mb-4">User List</h2>
+      <div className="flex-grow p-6 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-semibold mb-6 text-gray-800">User Management</h2>
 
-          <div className="mb-4 flex items-center space-x-2 flex-wrap md:flex-nowrap">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
             <input
               type="text"
-              placeholder="Search by name or email"
+              placeholder="Search name or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border rounded px-3 py-2 w-full sm:w-auto mb-2 md:mb-0 focus:outline-none focus:ring focus:ring-blue-200"
+              className="w-full md:w-1/2 px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white"
             />
             <select
               value={filterVerified}
               onChange={(e) => setFilterVerified(e.target.value)}
-              className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200 ml-0 md:ml-2"
+              className="w-full md:w-1/4 px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 outline-none bg-white"
             >
-              <option value="all">All</option>
+              <option value="all">All Users</option>
               <option value="verified">Verified</option>
               <option value="not verified">Not Verified</option>
             </select>
           </div>
 
-          <div className="overflow-x-auto flex flex-col">
-            <table className="min-w-full bg-white border border-gray-200 shadow-md">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-2 px-4 border-b text-left w-1/5">Name</th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">Email</th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Registration Number
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/8">Status</th>
-                  <th className="py-2 px-4 border-b text-left w-1/6">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td
-                      className="py-2 px-4 text-blue-500 border-b underline underline-offset-4 "
-                      onClick={() => {
-                        navigate(`/admin/profile/${user._id}`);
-                      }}
-                    >
-                      {user.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">{user.email}</td>
-                    <td className="py-2 px-4 border-b">
-                      {user.registrationNumber}
-                    </td>
-                    <td className="py-2 px-4 border-b">{user.status}</td>
-                    <td className="py-2 px-4 border-b">
-                      {user.status === "not verified" ? (
-                        <button
-                          onClick={() =>
-                            handleVerification(user._id, user.status)
-                          }
-                          className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded"
-                        >
-                          Verify
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleRevoke(user._id)}
-                          className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
-                        >
-                          Revoke Verification
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredUsers.length === 0 ? (
+              <div className="text-gray-500 col-span-full text-center">No users found.</div>
+            ) : (
+              filteredUsers.map((user) => (
+                <div
+                  key={user._id}
+                  className="bg-white shadow-md rounded-xl p-5 border border-gray-100 hover:shadow-lg transition"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3
+                        className="text-xl font-bold text-blue-600 cursor-pointer hover:underline"
+                        onClick={() => navigate(`/admin/profile/${user._id}`)}
+                      >
+                        {user.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                      <p className="text-sm text-gray-400 mt-1">Reg No: {user.registrationNumber}</p>
+                    </div>
+                    <div>
+                      <span
+                        className={`text-xs font-medium px-3 py-1 rounded-full ${
+                          user.status === "verified"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {user.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex justify-end space-x-2">
+                    {user.status === "not verified" ? (
+                      <button
+                        onClick={() => handleVerification(user._id)}
+                        className="flex items-center bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm shadow"
+                      >
+                        <FaCheckCircle className="mr-2" /> Verify
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRevoke(user._id)}
+                        className="flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm shadow"
+                      >
+                        <FaUserTimes className="mr-2" /> Revoke
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-        <Footer />
       </div>
     </div>
   );

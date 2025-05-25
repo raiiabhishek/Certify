@@ -42,7 +42,7 @@ export default function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:w-64 w-full max-w-sm`}
       >
-        <Link to="/" className="text-2xl font-bold mb-8 text-center">
+        <Link to="/home" className="text-2xl font-bold mb-8 text-center">
           Certify
         </Link>
 

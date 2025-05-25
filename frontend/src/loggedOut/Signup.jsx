@@ -69,18 +69,14 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gray-100">
-      {" "}
-      {/* Updated Container */}
       <Nav />
       <div className="flex justify-center items-center flex-grow">
-        {" "}
-        {/* Updated Container */}
         <form
           onSubmit={handleSubmit}
           className="w-full max-w-xl bg-white p-6 rounded-lg shadow-md space-y-4 mx-auto"
         >
           <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-3xl font-bold mb-6 text-gray-800">
-            <span className="text-blue-500">Register </span>
+            <span className="text-black-500">Register </span>
             Your Account
           </h1>
           <div className="grid lg:grid-cols-2 gap-5">
@@ -95,7 +91,7 @@ const SignUp = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="John Doe"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
             <div>
@@ -109,7 +105,7 @@ const SignUp = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="45678"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
           </div>
@@ -126,7 +122,7 @@ const SignUp = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="example@gmail.com"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
             <div>
@@ -140,7 +136,7 @@ const SignUp = () => {
                 onChange={handleInputChange}
                 required
                 placeholder="e.g. +9779800000000"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
           </div>
@@ -156,7 +152,7 @@ const SignUp = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
 
@@ -170,7 +166,7 @@ const SignUp = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2c4036] text-gray-700"
               />
             </div>
           </div>
@@ -181,11 +177,11 @@ const SignUp = () => {
               checked={formData.agreeToTerms}
               onChange={handleInputChange}
               required
-              className="h-4 w-4 text-blue-500 border rounded focus:ring-blue-500"
+              className="h-4 w-4 text-[#2c4036] border rounded focus:ring-[#2c4036]"
             />
             <label className="ml-2 text-sm text-gray-700">
               I agree to the{" "}
-              <a href="#" className="text-blue-500 underline">
+              <a href="#" className="text-[#2c4036] underline">
                 terms and conditions
               </a>
             </label>
@@ -194,17 +190,16 @@ const SignUp = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2 text-white rounded-md bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full py-2 text-white rounded-md transition duration-200 ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-blue-700"
+                : "bg-[#2c4036] hover:bg-[#24352d]"
             }`}
           >
             {loading ? "Submitting..." : "Register"}
           </button>
         </form>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -10,6 +10,7 @@ const Settings = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     image: null,
     name: "",
@@ -31,13 +32,14 @@ const Settings = () => {
           },
         });
 
-        if (response.data && response.data.data) {
-          setFormData((prevData) => ({
-            ...prevData,
+        if (response.data?.data) {
+          setFormData((prev) => ({
+            ...prev,
             name: response.data.data.name || "",
             email: response.data.data.email || "",
             phone: response.data.data.phone || "",
             registrationNumber: response.data.data.registrationNumber || "",
+            image: response.data.data.image || null,
           }));
         } else {
           setError("Failed to load settings.");
@@ -70,6 +72,7 @@ const Settings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (
       formData.password &&
       formData.confirmPassword &&
@@ -87,12 +90,9 @@ const Settings = () => {
     formDataToSend.append("email", formData.email);
     formDataToSend.append("phone", formData.phone);
     formDataToSend.append("registrationNumber", formData.registrationNumber);
-    if (formData.image) {
+    if (formData.image && typeof formData.image !== "string")
       formDataToSend.append("image", formData.image);
-    }
-    if (formData.password) {
-      formDataToSend.append("password", formData.password);
-    }
+    if (formData.password) formDataToSend.append("password", formData.password);
 
     try {
       const response = await axios.post(`${api}/settings`, formDataToSend, {
@@ -102,10 +102,9 @@ const Settings = () => {
         },
       });
 
-      console.log(response.data);
-
       if (response.data.status === "success") {
         alert("Settings updated successfully!");
+        setIsEditing(false); // exit edit mode
       } else {
         setError(response.data.msg || "Failed to update settings.");
       }
@@ -119,142 +118,187 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen bg-gray-50 text-gray-800">
       <Sidebar />
-      <div className="flex-grow flex flex-col justify-center items-center bg-gray-100">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-xl bg-white p-6 rounded-lg shadow-md space-y-4"
-        >
-          <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-3xl font-bold mb-6 text-gray-800">
-            <span className="text-blue-500">Update </span>
-            Your Settings
+      <div className="flex-grow pl-64 py-10 px-8">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold mb-6 text-gray-800">
+            {isEditing ? "Edit Your" : "Your"}{" "}
+            <span className="text-[#346f73]">Profile</span>
           </h1>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Profile Picture / Logo
-            </label>
-            <input
-              type="file"
-              name="image"
-              onChange={handleFileChange}
-              className="block w-full mt-1 text-sm text-grey-700 file:mr-4 file:py-2 file:px-4 file:border file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 rounded"
-            />
-            {formData.image && typeof formData.image === "string" && (
-              <img
-                src={formData.image}
-                alt="current profile"
-                className="mt-2 h-20 w-20 rounded-full object-cover"
-              />
+          <div className="flex justify-end mb-6">
+            <button
+              type="button"
+              onClick={() => setIsEditing((prev) => !prev)}
+              className="px-4 py-2 rounded-md font-semibold text-white bg-blue-600 hover:bg-blue-700"
+            >
+              {isEditing ? "Cancel" : "Edit Profile"}
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-10">
+            {/* Image Upload / Preview */}
+            {isEditing ? (
+              <div>
+                <label className="block mb-2 text-sm font-semibold">
+                  Profile Picture / Logo
+                </label>
+                <input
+                  type="file"
+                  name="image"
+                  onChange={handleFileChange}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
+                />
+              </div>
+            ) : (
+              formData.image && (
+                <div className="mb-4">
+                  <img
+                    src={formData.image}
+                    alt="current"
+                    className="h-20 w-20 rounded-full object-cover border"
+                  />
+                </div>
+              )
             )}
-          </div>
 
-          <div className="grid lg:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                placeholder="John Doe"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Registration Number
-              </label>
-              <input
-                type="text"
-                name="registrationNumber"
-                value={formData.registrationNumber}
-                onChange={handleInputChange}
-                required
-                placeholder="45678"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
-            </div>
-          </div>
+            {/* Input Fields */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  disabled={!isEditing}
+                  required
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
+                    isEditing
+                      ? "focus:ring-2 focus:ring-blue-500"
+                      : "bg-gray-100 cursor-not-allowed"
+                  }`}
+                />
+              </div>
 
-          <div className="grid lg:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                placeholder="example@gmail.com"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                placeholder="e.g. +9779800000000"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
-            </div>
-          </div>
+              {/* Registration Number */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Registration Number
+                </label>
+                <input
+                  type="text"
+                  name="registrationNumber"
+                  value={formData.registrationNumber}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  disabled={!isEditing}
+                  required
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
+                    isEditing
+                      ? "focus:ring-2 focus:ring-blue-500"
+                      : "bg-gray-100 cursor-not-allowed"
+                  }`}
+                />
+              </div>
 
-          <div className="grid lg:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                New Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="New Password"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  disabled={!isEditing}
+                  required
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
+                    isEditing
+                      ? "focus:ring-2 focus:ring-blue-500"
+                      : "bg-gray-100 cursor-not-allowed"
+                  }`}
+                />
+              </div>
+
+              {/* Phone Number */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  readOnly={!isEditing}
+                  disabled={!isEditing}
+                  required
+                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
+                    isEditing
+                      ? "focus:ring-2 focus:ring-blue-500"
+                      : "bg-gray-100 cursor-not-allowed"
+                  }`}
+                />
+              </div>
+
+              {/* Password Fields (only in edit mode) */}
+              {isEditing && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                placeholder="Confirm New Password"
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-              />
-            </div>
-          </div>
+            {/* Error */}
+            {error && (
+              <p className="text-red-600 text-sm font-medium">{error}</p>
+            )}
 
-          {error && <div className="text-red-500">{error}</div>}
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 text-white rounded-md bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Saving..." : "Save Settings"}
-          </button>
-        </form>
+            {/* Submit Button */}
+            {isEditing && (
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full md:w-auto px-6 py-3 rounded-md text-white font-semibold transition ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#346f73] hover:bg-[#1B3B3D]"
+                  }`}
+                >
+                  {loading ? "Saving..." : "Save Settings"}
+                </button>
+              </div>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -1,17 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
-import {
-  AiOutlineAlignCenter,
-  AiOutlineFileText,
-  AiOutlineEye,
-} from "react-icons/ai";
+import { AiOutlineEye } from "react-icons/ai";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
-import Sidebar from "./Sidebar"; // Import the Sidebar
-import Footer from "../Footer";
-
-const COLORS = ["#4F46E5", "#10B981"];
+import Sidebar from "./Sidebar";
 
 export default function AllReports() {
   const api = import.meta.env.VITE_URL;
@@ -44,24 +36,20 @@ export default function AllReports() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <span>Loading...</span>
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        <span className="text-lg">Loading...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
+      <div className="flex justify-center items-center h-screen text-red-600 text-lg">
         Error: {error}
       </div>
     );
   }
 
-  const data = [
-    { name: "Certificates", value: user?.certificates?.length || 0 },
-    { name: "Reports", value: user?.reports?.length || 0 },
-  ];
   function numberToText(inputString) {
     const numberMapping = {
       0: "abc",
@@ -75,17 +63,9 @@ export default function AllReports() {
       8: "yza",
       9: "bcd",
     };
-
-    let outputString = "";
-    for (let i = 0; i < inputString.length; i++) {
-      const char = inputString[i];
-      if (numberMapping[char]) {
-        outputString += numberMapping[char];
-      } else {
-        outputString += char;
-      }
-    }
-    return outputString;
+    return [...inputString]
+      .map((char) => numberMapping[char] || char)
+      .join("");
   }
 
   const handleViewCertificate = (certificateId) => {
@@ -116,96 +96,66 @@ export default function AllReports() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-100 flex">
       <Sidebar />
       <main className="flex-1 ml-0 md:ml-64 px-4 py-8">
-        {" "}
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div className="relative">
-            <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
-              <span className="text-indigo-600">Reports </span> !
-            </h1>
-          </div>
-          <div className="grid grid-cols-1 gap-8 mt-4">
-            {user?.reports && user.reports.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Certificate ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Comment
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {user.reports.map((report) => (
-                        <tr key={report._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {report._id}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {report.certificate._id || report.certificate}
-                          </td>
-                          <td className="px-6 py-4  text-sm text-gray-500">
-                            {report.comment}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(report.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    report.certificate.certificateUrl ||
-                                      report.certificate
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(
-                                    report.certificate._id || report.certificate
-                                  )
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <span className="text-red-600 hover:text-red-900">
-                                  Revoke
-                                </span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
+            <span className="text-[#2c4036]">Total Reports</span>
+          </h1>
 
-            {user?.reports && user.reports.length === 0 && (
-              <div className="text-center text-gray-500 lg:col-span-2">
-                No reports found.
-              </div>
-            )}
-          </div>
+          {user?.reports && user.reports.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {user.reports.map((report) => (
+                <div
+                  key={report._id}
+                  className="bg-white shadow-md border border-gray-200 rounded-lg p-5 hover:shadow-lg transition"
+                >
+                  <h2 className="text-lg font-semibold text-gray-800 break-words mb-2 cursor-pointer">
+                    Report ID: <span className="text-[#346f73]">{report._id}</span>
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-semibold">Certificate ID:</span>{" "}
+                    {report.certificate._id || report.certificate}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <span className="font-semibold">Comment:</span> {report.comment}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    <span className="font-semibold">Date:</span>{" "}
+                    {new Date(report.createdAt).toLocaleDateString()}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() =>
+                        handleViewCertificate(
+                          report.certificate.certificateUrl || report.certificate
+                        )
+                      }
+                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-[#346f73] border border-[#346f73] rounded hover:bg-[#346f73] hover:text-white transition cursor-pointer"
+                    >
+                      <AiOutlineEye className="mr-1" />
+                      View
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleRevokeCertificate(
+                          report.certificate._id || report.certificate
+                        )
+                      }
+                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition cursor-pointer"
+                    >
+                      Revoke
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-600 py-8">
+              No reports found.
+            </div>
+          )}
         </div>
       </main>
     </div>

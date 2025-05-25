@@ -5,82 +5,66 @@ import Footer from "../Footer.jsx";
 import { AuthContext } from "../../AuthContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import Cert from "../assets/cert.jpg";
+import Cert from "../assets/cert.png";
+
 export default function Login() {
   const api = import.meta.env.VITE_URL;
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState();
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // You can now use formData values
-    console.log("Form Submitted:", formData);
     try {
-      console.log(api);
       const response = await axios.post(`${api}/login`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
-      console.log(response);
+
       if (response.data.status === "success") {
         login(response.data.token, response.data.role, response.data.id);
-        if (response.data.role === "admin") {
-          navigate("/admin/home");
-        } else {
-          navigate("/home");
-        }
+        navigate(response.data.role === "admin" ? "/admin/home" : "/home");
       }
     } catch (error) {
-      console.log(error);
-      setError(` ${error.response?.data?.msg || "error occured"} `);
+      setError(` ${error.response?.data?.msg || "error occurred"} `);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col justify-between bg-gray-200">
       <Nav />
-      <div className="grid grid-cols-1 md:grid-cols-2 place-items-center flex-grow xl:pb-6">
-        <div className="hidden md:block">
-          <img src={Cert} alt="Login Image" className="max-w-md" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 items-center flex-grow px-4 xl:pb-10">
+        {/* Left Image */}
+        <div className="hidden md:flex justify-center">
+          <img src={Cert} alt="Login Illustration" className="max-w-md" />
         </div>
 
+        {/* Right Form */}
         <div className="w-full">
-          {" "}
-          {/* Container for the form and text */}
-          <section className="bg-white">
-            <div className="py-8 pb-0 px-4 mx-auto max-w-screen-xl text-center">
-              <h1 className="text-xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold text-center">
-                <span className="text-blue">Welcome</span> Back!
-              </h1>
-            </div>
+          <section className="py-8 pb-0 px-4 text-center">
+            <h1 className="text-xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold">
+              <span className="text-[#2c4036]">Welcome</span> Back!
+            </h1>
           </section>
+
           <form
             onSubmit={handleSubmit}
-            className="w-2/3 md:w-1/2 py-10 mx-auto"
+            className="w-11/12 md:w-2/3 lg:w-1/2 mx-auto bg-white rounded-lg shadow-md p-6 mt-6"
           >
-            {" "}
-            {/* Centered form */}
-            <div className="mb-6">
+            {/* Email */}
+            <div className="mb-5">
               <label
                 htmlFor="email"
-                className="block mb-2 text-sm font-medium t"
+                className="block mb-2 text-sm font-semibold text-gray-700"
               >
                 Email address
               </label>
@@ -88,16 +72,18 @@ export default function Login() {
                 type="email"
                 id="email"
                 name="email"
-                className="border text-sm rounded-lg focus:ring-blue focus:border-blue block w-full p-2.5"
+                className="border border-gray-300 text-sm rounded-md focus:ring-[#2c4036] focus:border-[#2c4036] w-full p-2.5"
                 placeholder="john.doe@company.com"
                 onChange={handleChange}
                 required
               />
             </div>
-            <div className="mb-6">
+
+            {/* Password */}
+            <div className="mb-4">
               <label
                 htmlFor="password"
-                className="block mb-2 text-sm font-medium "
+                className="block mb-2 text-sm font-semibold text-gray-700"
               >
                 Password
               </label>
@@ -106,7 +92,7 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
-                  className="border text-sm rounded-lg focus:ring-blue focus:border-blue block w-full p-2.5"
+                  className="border border-gray-300 text-sm rounded-md focus:ring-[#2c4036] focus:border-[#2c4036] w-full p-2.5"
                   placeholder="•••••••••"
                   onChange={handleChange}
                   required
@@ -114,49 +100,59 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 dark:text-gray-400"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600"
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-              <div className="w-full text-right mt-5">
-                <Link to="/forgot-password" className="text-blue text-sm">
+
+              {/* Forgot Password */}
+              <div className="text-right mt-3">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-[#2c4036] hover:underline"
+                >
                   Forgot Password?
                 </Link>
               </div>
-              {error && <span className=" text-red">{error}</span>}
+
+              {/* Error */}
+              {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
             </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="text-white bg-blue-700 hover:bg-blue-dark focus:ring-2 focus:outline-none focus:ring-blue font-medium rounded-lg text-sm w-full  px-5 py-2.5 text-center "
+              className="w-full bg-[#2c4036] hover:bg-[#1f3027] text-white font-semibold py-2.5 rounded-md transition duration-300"
             >
               Log In
             </button>
           </form>
-          <span className="px-4 text-center mb-10">
-            <p className="text-gray-500 dark:text-gray-400">
-              Don't have an account?
+
+          {/* Sign Up Link */}
+          <div className="text-center mt-6 mb-10 px-4">
+            <p className="text-gray-600">
+              Don&apos;t have an account?
               <br />
               <Link
                 to="/signup"
-                className="text-blue inline-flex items-center font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                className="text-[#2c4036] font-medium inline-flex items-center hover:underline"
               >
                 Sign Up Now
                 <svg
-                  className="w-4 h-4 ms-2 rtl:rotate-180"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4 ml-2"
                   fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 14 10"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
                   <path d="M1 5h12m0 0L9 1m4 4L9 9" />
                 </svg>
               </Link>
             </p>
-          </span>
+          </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

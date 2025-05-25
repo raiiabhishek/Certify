@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../AuthContext";
 import Nav from "./Nav";
-import Footer from "../Footer";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 
@@ -26,7 +25,6 @@ export default function ReportsList() {
         });
 
         if (result.status === 200) {
-          console.log(result.data.data);
           setReports(result.data.data);
         } else {
           setError(result.data.msg);
@@ -43,15 +41,12 @@ export default function ReportsList() {
   }, [api, authToken]);
 
   useEffect(() => {
-    // Filter and search logic for reports
     let filteredReportsList = reports;
 
-    // Search by any field (template name, template type, creator name, creator email)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filteredReportsList = filteredReportsList.filter((report) => {
-        const searchString =
-          `${report.certificate.template.name} ${report.certificate.template.type} ${report.certificate.creator.name} ${report.certificate.creator.email}`.toLowerCase();
+        const searchString = `${report.certificate.template.name} ${report.certificate.template.type} ${report.certificate.creator.name} ${report.certificate.creator.email}`.toLowerCase();
         return searchString.includes(term);
       });
     }
@@ -85,8 +80,8 @@ export default function ReportsList() {
     }
   };
 
-  const handleViewCertificate = (certificateId) => {
-    navigate(`${certificateId}`);
+  const handleViewCertificate = (certificateUrl) => {
+    navigate(`${certificateUrl}`);
   };
 
   if (loading)
@@ -98,89 +93,70 @@ export default function ReportsList() {
     <div className="flex h-screen bg-gray-100">
       <Nav />
       <div className="flex-grow overflow-y-auto">
-        <div className="flex-1 container mx-auto p-5 px-5 lg:px-10 flex flex-col">
+        <div className="container mx-auto p-5 px-5 lg:px-10 flex flex-col">
           <h2 className="text-2xl font-bold mb-4">Manage Reports</h2>
 
-          {/* Search and Filter */}
-          <div className="mb-4 flex items-center space-x-2 flex-wrap md:flex-nowrap">
+          {/* Search */}
+          <div className="mb-6 flex items-center space-x-2 flex-wrap md:flex-nowrap">
             <input
               type="text"
-              placeholder="Search by anything"
+              placeholder="Search by template, creator, or email"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="border rounded px-3 py-2 w-full sm:w-auto mb-2 md:mb-0 focus:outline-none focus:ring focus:ring-blue-200"
             />
           </div>
 
-          {/* Certificate List Table */}
-
-          <div className="overflow-x-auto flex flex-col">
-            <table className="min-w-full bg-white border border-gray-200 shadow-md">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Report Comment
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Template Name
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Template Type
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Creator Name
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Creator Email
-                  </th>
-                  <th className="py-2 px-4 border-b text-left w-1/5">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCertificates.map((report) => (
-                  <tr key={report.certificate._id} className="hover:bg-gray-50">
-                    <td className="py-2 px-4 border-b">{report.comment}</td>
-                    <td className="py-2 px-4 border-b">
-                      {report.certificate.template.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {report.certificate.template.type}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {report.certificate.creator.name}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {report.certificate.creator.email}
-                    </td>
-                    <td className="py-2 px-4 border-b flex ">
-                      <button
-                        onClick={() =>
-                          handleViewCertificate(
-                            report.certificate.certificateUrl
-                          )
-                        }
-                        className="text-blue-500 hover:bg-gray-300 font-bold py-1 px-2 rounded mr-2"
-                      >
-                        <AiOutlineEye />
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleCertificateRevoke(report.certificate._id)
-                        }
-                        className="text-red-500 hover:bg-gray-300  font-bold py-1 px-2 rounded"
-                      >
-                        <AiOutlineDelete />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Cards Grid Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCertificates.length === 0 ? (
+              <div className="text-center text-gray-500 col-span-full">
+                No reports found.
+              </div>
+            ) : (
+              filteredCertificates.map((report) => (
+                <div
+                  key={report.certificate._id}
+                  className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all border border-gray-200"
+                >
+                  <h3 className="text-lg font-semibold text-black-600 mb-2">
+                    {report.certificate.template.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <strong>Type:</strong> {report.certificate.template.type}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <strong>Creator:</strong> {report.certificate.creator.name}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    <strong>Email:</strong> {report.certificate.creator.email}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-3">
+                    <strong>Comment:</strong> {report.comment}
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <button
+                      onClick={() =>
+                        handleViewCertificate(report.certificate.certificateUrl)
+                      }
+                      className="text-blue-500 hover:bg-gray-100 rounded-full p-2"
+                    >
+                      <AiOutlineEye size={20} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleCertificateRevoke(report.certificate._id)
+                      }
+                      className="text-red-500 hover:bg-gray-100 rounded-full p-2"
+                    >
+                      <AiOutlineDelete size={20} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-        <Footer />
       </div>
     </div>
   );
