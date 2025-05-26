@@ -24,6 +24,7 @@ const createBulk = async (req, res) => {
   const { templateId } = req.params;
 
   let spreadsheetData;
+  console.log("creating bulk");
   if (req.files && req.files["files"] && req.files["files"][0]) {
     const file = req.files["files"][0];
     const filePath = path.join(__dirname, "..", "..", "..", file.path);
@@ -53,7 +54,7 @@ const createBulk = async (req, res) => {
     return res.status(400).json({ error: "No spreadsheet file uploaded." });
   }
 
-  console.log(templateId);
+  console.log("templateid", templateId);
   if (!templateId || !spreadsheetData || !Array.isArray(spreadsheetData)) {
     return res
       .status(400)
@@ -67,9 +68,9 @@ const createBulk = async (req, res) => {
     if (!template) {
       return res.status(404).json({ error: "Template not found." });
     }
-
+    console.log(template);
     const variables = template.variables || [];
-
+    console.log(variables);
     const generatedCertificateDetails = []; // Array to store details of each generated certificate
 
     // Loop through each row of the spreadsheet data
@@ -78,15 +79,19 @@ const createBulk = async (req, res) => {
 
       // Validate required fields from the spreadsheet row
       for (const variableName of variables) {
+        console.log(variableName);
+        console.log(rowData);
         if (rowData.hasOwnProperty(variableName)) {
+          console.log(rowData[variableName]);
           extractedVariables[variableName] = rowData[variableName];
         } else {
+          console.log("missing");
           return res.status(400).json({
             error: `Missing the ${variableName} field in one of the rows.`,
           });
         }
       }
-
+      console.log(extractedVariables);
       let modifiedTemplate = template.htmlContent;
 
       // 2. Replace Placeholders
@@ -239,7 +244,7 @@ const createBulk = async (req, res) => {
         console.warn("User update failed:", userUpdateError);
         //Non critical error. Log the error and continue
       }
-
+      console.log("aaipugyo");
       // Store successful certificate generation details
       generatedCertificateDetails.push({
         success: true,
@@ -249,7 +254,7 @@ const createBulk = async (req, res) => {
         rowData,
       });
     }
-
+    console.log(generatedCertificateDetails);
     // 8. Return Success
     res.status(200).json({
       message: "Certificates created successfully!",

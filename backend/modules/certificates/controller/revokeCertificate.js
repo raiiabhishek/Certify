@@ -3,7 +3,7 @@ const ethers = require("ethers");
 const mongoose = require("mongoose");
 const fs = require("fs").promises;
 dotenv.config();
-
+const path = require("path");
 const contractABI = require("../../../contractABI.json");
 
 const provider = new ethers.JsonRpcProvider(process.env.INFURA_URL);
@@ -32,14 +32,15 @@ const revokeCertificate = async (req, res) => {
     // Convert the certificate ID to a BigNumber for contract interaction
 
     // Call the deleteCertificate function on the contract
-    const tx = await contract.deleteCertificate(certificate.solidityId);
+    console.log(certificate.solidityId);
+    // const tx = await contract.deleteCertificate(certificate.solidityId);
 
-    // Wait for the transaction to be mined
-    await tx.wait();
+    // // Wait for the transaction to be mined
+    // await tx.wait();
 
-    console.log(
-      `Certificate with ID ${certificateId} has been revoked on contract.`
-    );
+    // console.log(
+    //   `Certificate with ID ${certificateId} has been revoked on contract.`
+    // );
 
     // Remove the certificate ID from the user's certificates array
     await UserModel.updateOne(

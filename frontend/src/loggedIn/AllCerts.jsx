@@ -87,7 +87,6 @@ export default function AllCerts() {
         alert("Certificate revoked successfully!");
       } catch (e) {
         console.error("Failed to revoke certificate:", e);
-        alert("Failed to revoke certificate.");
       }
     }
   };

@@ -46,7 +46,8 @@ export default function ReportsList() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filteredReportsList = filteredReportsList.filter((report) => {
-        const searchString = `${report.certificate.template.name} ${report.certificate.template.type} ${report.certificate.creator.name} ${report.certificate.creator.email}`.toLowerCase();
+        const searchString =
+          `${report.certificate.template.name} ${report.certificate.template.type} ${report.certificate.creator.name} ${report.certificate.creator.email}`.toLowerCase();
         return searchString.includes(term);
       });
     }
@@ -94,7 +95,9 @@ export default function ReportsList() {
       <Nav />
       <div className="flex-grow overflow-y-auto">
         <div className="container mx-auto p-5 px-5 lg:px-10 flex flex-col">
-          <h2 className="text-2xl font-bold mb-4">Manage Reports</h2>
+          <h2 className="text-3xl text-[#2c4036] font-bold mb-4">
+            Manage Reports
+          </h2>
 
           {/* Search */}
           <div className="mb-6 flex items-center space-x-2 flex-wrap md:flex-nowrap">
@@ -108,7 +111,7 @@ export default function ReportsList() {
           </div>
 
           {/* Cards Grid Layout */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="text-[#2c4036] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCertificates.length === 0 ? (
               <div className="text-center text-gray-500 col-span-full">
                 No reports found.

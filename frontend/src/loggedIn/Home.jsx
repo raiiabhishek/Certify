@@ -7,11 +7,17 @@ import {
   ResponsiveContainer,
   Legend,
   Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
 import {
   AiOutlineAlignCenter,
   AiOutlineFileText,
   AiOutlineEye,
+  AiOutlineDelete,
 } from "react-icons/ai";
 import { AuthContext } from "../../AuthContext";
 import axios from "axios";
@@ -27,13 +33,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
-  const handleMouseEnter = (data, index) => {
-    setActiveIndex(index);
-  };
 
-  const handleMouseLeave = () => {
-    setActiveIndex(null);
-  };
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -43,7 +43,6 @@ export default function Home() {
             Authorization: `Bearer ${authToken}`,
           },
         });
-        console.log(response.data);
         setUser(response.data.data);
         setLoading(false);
       } catch (e) {
@@ -51,50 +50,26 @@ export default function Home() {
         setLoading(false);
       }
     };
-    if (authToken) {
-      fetchProfile();
-    }
+    if (authToken) fetchProfile();
   }, [authToken, api]);
-  const renderCustomTooltip = ({ payload, label }) => {
-    if (payload && payload.length) {
-      const dataPoint = payload[0].payload;
-      const percentage = (
-        (dataPoint.value / data.reduce((sum, d) => sum + d.value, 0)) *
-        100
-      ).toFixed(2);
-
-      return (
-        <div className="backdrop-blur-md bg-white/30 p-2 border border-gray-200/50 shadow-md rounded-md">
-          <p className="font-bold text-gray-800">{`${dataPoint.name}: ${percentage}%`}</p>
-          <p className="text-gray-600">{`Value: ${dataPoint.value}`}</p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <span>Loading...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        Error: {error}
-      </div>
-    );
-  }
 
   const data = [
     { name: "Certificates", value: user?.certificates?.length || 0 },
     { name: "Reports", value: user?.reports?.length || 0 },
   ];
-  function numberToText(inputString) {
-    const numberMapping = {
+
+  const latestReports =
+    user?.reports
+      ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 3) || [];
+
+  const reportSummaryData = [
+    { name: "Total Reports", value: user?.reports?.length || 0 },
+    { name: "Recent Reports", value: latestReports.length },
+  ];
+
+  const numberToText = (inputString) => {
+    const mapping = {
       0: "abc",
       1: "def",
       2: "ghi",
@@ -106,18 +81,11 @@ export default function Home() {
       8: "yza",
       9: "bcd",
     };
-
-    let outputString = "";
-    for (let i = 0; i < inputString.length; i++) {
-      const char = inputString[i];
-      if (numberMapping[char]) {
-        outputString += numberMapping[char];
-      } else {
-        outputString += char;
-      }
-    }
-    return outputString;
-  }
+    return inputString
+      .split("")
+      .map((char) => mapping[char] || char)
+      .join("");
+  };
 
   const handleViewCertificate = (certificateId) => {
     const enc = numberToText(certificateId);
@@ -128,14 +96,12 @@ export default function Home() {
     if (window.confirm("Are you sure you want to revoke this certificate?")) {
       try {
         await axios.delete(`${api}/certificate/revoke/${certificateId}`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+          headers: { Authorization: `Bearer ${authToken}` },
         });
         const updatedReports = user.reports.filter(
-          (report) =>
-            report.certificate._id !== certificateId &&
-            report.certificate !== certificateId
+          (r) =>
+            r.certificate._id !== certificateId &&
+            r.certificate !== certificateId
         );
         setUser({ ...user, reports: updatedReports });
         alert("Certificate revoked successfully!");
@@ -146,71 +112,116 @@ export default function Home() {
     }
   };
 
-  const latestCertificates = user?.certificates
-    ? user.certificates
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 3)
-    : [];
+  const renderCustomTooltip = ({ payload }) => {
+    if (payload && payload.length) {
+      const dataPoint = payload[0].payload;
+      const percentage = (
+        (dataPoint.value / data.reduce((sum, d) => sum + d.value, 0)) *
+        100
+      ).toFixed(2);
+      return (
+        <div className="backdrop-blur-md bg-white/30 p-2 border border-gray-200/50 shadow-md rounded-md">
+          <p className="font-bold text-gray-800">{`${dataPoint.name}: ${percentage}%`}</p>
+          <p className="text-gray-600">{`Value: ${dataPoint.value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
-  const latestReports = user?.reports
-    ? user.reports
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 3)
-    : [];
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500">
+        Error: {error}
+      </div>
+    );
+
+  const latestCertificates = user?.certificates
+    ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <main className="flex-1 ml-0 md:ml-64 px-4 py-8">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div className="relative">
-            <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
-              Activity dashboard of{" "}
-              <span className="text-[#2c4036]">{user?.name} </span>
-            </h1>
-          </div>
-          <div className="grid grid-cols-1 gap-8 mt-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-center text-4xl font-bold">
+            Activity dashboard of{" "}
+            <span className="text-[#2c4036]">{user?.name}</span>
+          </h1>
+
+          <div className="grid grid-cols-1 gap-8 mt-8">
             <div className="bg-white p-6 rounded-lg shadow">
               <h2 className="text-xl font-semibold mb-4">
-                Document Distribution
+                Document Distribution & Report Analytics
               </h2>
-              <div className="h-80 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={data}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
-                      activeIndex={activeIndex}
-                      onMouseEnter={handleMouseEnter}
-                      onMouseLeave={handleMouseLeave}
+              <div className="flex flex-col md:flex-row gap-8">
+                {/* Pie Chart */}
+                <div className="flex-1 h-80 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={120}
+                        fill="#8884d8"
+                        dataKey="value"
+                        onMouseEnter={(d, i) => setActiveIndex(i)}
+                        onMouseLeave={() => setActiveIndex(null)}
+                        activeIndex={activeIndex}
+                      >
+                        {data.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip content={renderCustomTooltip} />
+                      <Legend verticalAlign="bottom" height={36} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="flex-1 h-80 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={reportSummaryData}
+                      margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
                     >
-                      {data.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip content={renderCustomTooltip} />
-                    <Legend verticalAlign="bottom" height={36} />
-                  </PieChart>
-                </ResponsiveContainer>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="value">
+                        {reportSummaryData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              entry.name === "Total Reports"
+                                ? "#346f73"
+                                : "#f3730e"
+                            }
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
-              <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white p-6 rounded-lg shadow flex items-center">
                 <AiOutlineAlignCenter className="h-8 w-8 text-[#346f73] mr-4" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
@@ -221,7 +232,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center">
+              <div className="bg-white p-6 rounded-lg shadow flex items-center">
                 <AiOutlineFileText className="h-8 w-8 text-[#f3730e] mr-4" />
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">
@@ -234,168 +245,103 @@ export default function Home() {
               </div>
             </div>
 
-            {latestCertificates && latestCertificates.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
+            {latestCertificates.length > 0 && (
+              <div>
                 <h2 className="text-xl font-semibold mb-4">
                   Recent Certificates
                 </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {latestCertificates.map((certificate) => (
-                        <tr key={certificate._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {certificate._id}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(
-                              certificate.createdAt
-                            ).toLocaleDateString()}
-                          </td>
-
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    certificate.certificateUrl
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(certificate._id)
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <span className="text-red-600 hover:text-red-900">
-                                  Revoke
-                                </span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {latestCertificates.map((certificate) => (
+                    <div
+                      key={certificate._id}
+                      className="bg-white p-4 rounded-lg shadow border"
+                    >
+                      <h3 className="text-md font-bold text-gray-800 mb-2">
+                        Certificate ID
+                      </h3>
+                      <p className="text-gray-700 break-words">
+                        {certificate._id}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {new Date(certificate.createdAt).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center mt-4 space-x-4">
+                        <button
+                          onClick={() =>
+                            handleViewCertificate(certificate.certificateUrl)
+                          }
+                          className="text-indigo-600 hover:text-indigo-800"
+                        >
+                          <AiOutlineEye className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRevokeCertificate(certificate._id)
+                          }
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <AiOutlineDelete className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {latestReports && latestReports.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
+            {latestReports.length > 0 && (
+              <div>
                 <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Certificate ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Comment
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {latestReports.map((report) => (
-                        <tr key={report._id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {report._id}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {report.certificate._id || report.certificate}
-                          </td>
-                          <td className="px-6 py-4  text-sm text-gray-500">
-                            {report.comment}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(report.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    report.certificate.certificateUrl ||
-                                      report.certificate
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(
-                                    report.certificate._id || report.certificate
-                                  )
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <span className="text-red-600 hover:text-red-900">
-                                  Revoke
-                                </span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {latestReports.map((report) => (
+                    <div
+                      key={report._id}
+                      className="bg-white p-4 rounded-lg shadow border"
+                    >
+                      <h3 className="text-md font-bold text-gray-800 mb-1">
+                        Report ID
+                      </h3>
+                      <p className="text-gray-700 break-words">{report._id}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Certificate:{" "}
+                        {typeof report.certificate === "object"
+                          ? report.certificate._id
+                          : report.certificate}
+                      </p>
+                      <p className="text-gray-600 mt-2 line-clamp-3">
+                        {report.comment}
+                      </p>
+                      <p className="text-sm text-gray-400 mt-2">
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center mt-4 space-x-4">
+                        <button
+                          onClick={() =>
+                            handleViewCertificate(
+                              report.certificate?.certificateUrl ||
+                                report.certificate
+                            )
+                          }
+                          className="text-indigo-600 hover:text-indigo-800"
+                        >
+                          <AiOutlineEye className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRevokeCertificate(
+                              report.certificate?._id || report.certificate
+                            )
+                          }
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <AiOutlineDelete className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
-
-            {user?.reports && user.reports.length === 0 && (
-              <div className="text-center text-gray-500 lg:col-span-2">
-                No reports found.
-              </div>
-            )}
-            {user?.certificates && user.certificates.length === 0 && (
-              <div className="text-center text-gray-500 lg:col-span-2">
-                No certificate found.
-              </div>
-            )}
-            {latestCertificates.length === 0 &&
-              user?.certificates &&
-              user.certificates.length > 0 && (
-                <div className="text-center text-gray-500 lg:col-span-2">
-                  No more certificates found.
-                </div>
-              )}
-            {latestReports.length === 0 &&
-              user?.reports &&
-              user.reports.length > 0 && (
-                <div className="text-center text-gray-500 lg:col-span-2">
-                  No more reports found.
-                </div>
-              )}
           </div>
         </div>
       </main>

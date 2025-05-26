@@ -11,7 +11,7 @@ function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative bg-[#d0dbe4] text-black h-[95vh] flex flex-col justify-center items-center text-center px-6">
-        <h1 className="text-4xl lg:text-6xl font-light tracking-widest mb-4 uppercase">
+        <h1 className="text-4xl font-semibold lg:text-6xl font-light tracking-widest mb-4 uppercase">
           Issue & Verify Certificates Securely
         </h1>
         <p className="max-w-xl text-sm lg:text-base mb-6">
@@ -35,9 +35,9 @@ function LandingPage() {
       </section>
 
       {/* Who We Are */}
-      <section className="py-50 bg-[#eaefef] flex flex-col justify-center items-center text-center px-6 ">
-        <h2 className="text-7xl font-semibold mb-4">Who We Are</h2>
-        <p className="max-w-xl mx-auto mb-4 text-sm">
+      <section className="py-50 pb-60` bg-[#eaefef] flex flex-col justify-center items-center text-center ">
+        <h2 className="text-7xl font-semibold mb-8">Who We Are</h2>
+        <p className="max-w-xl mx-auto mb-5 text-sm">
           We help institutions issue tamper-proof, verifiable blockchain
           certificates. Our goal is to ensure credibility, security, and global
           accessibility of credentials.
@@ -48,8 +48,8 @@ function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-50 bg-[#d0dbe4] text-center">
-        <h2 className="text-4xl font-semibold mb-10">Key Features</h2>
+      <section id="features" className="py-70 bg-[#d0dbe4] text-center pb-50">
+        <h2 className="text-6xl font-semibold mb-10">Key Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6 max-w-6xl mx-auto">
           {[
             {
@@ -75,14 +75,14 @@ function LandingPage() {
 
       {/* Call to Action */}
       <section className="py-50 text-center">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-5xl font-semibold mb-4">
           Ready to Embrace Secure Certification?
         </h2>
         <p className="mb-6 text-sm">
           Start issuing and verifying blockchain certificates with ease.
         </p>
         <Link to="/login">
-          <button className="border border-black px-8 py-2 hover:bg-[#2c4036] hover:text-white transition">
+          <button className="border border-black px-8 py-2 hover:bg-[#2c4036] hover:text-white transition cursor-pointer">
             Get Started Now
           </button>
         </Link>
@@ -90,7 +90,7 @@ function LandingPage() {
 
       {/* Why Choose Us */}
       <section id="why-us" className="py-16 bg-[#d0dbe4] text-center">
-        <h2 className="text-2xl font-semibold mb-10">Why Choose Our System?</h2>
+        <h2 className="text-5xl font-semibold mb-10">Why Choose Our System?</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 max-w-5xl mx-auto">
           {[
             {
@@ -117,8 +117,6 @@ function LandingPage() {
           ))}
         </div>
       </section>
-
-      {/* Footer */}
       <Footer />
     </div>
   );

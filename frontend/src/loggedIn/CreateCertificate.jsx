@@ -110,6 +110,7 @@ function CreateCertificate() {
     }
     setBulkUploadLoading(true);
     try {
+      console.log(authToken);
       const formData = new FormData();
       formData.append("files", bulkUploadFile);
       const res = await axios.post(
@@ -122,6 +123,7 @@ function CreateCertificate() {
           },
         }
       );
+      console.log(res.data);
       alert(
         res.status === 200
           ? "Certificates generated successfully!"
@@ -196,12 +198,6 @@ function CreateCertificate() {
               <h2 className="text-xl font-bold text-gray-800">
                 Certificate Preview
               </h2>
-              <button
-                onClick={handlePrint}
-                className="bg-[#346f73] text-white text-sm px-4 py-1.5 rounded hover:bg-[#1B3B3D]"
-              >
-                Print
-              </button>
             </div>
 
             <div

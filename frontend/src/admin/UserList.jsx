@@ -80,15 +80,19 @@ export default function UserList() {
     }
   };
 
-  if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
-  if (error) return <div className="text-center py-10 text-red-600">Error: {error}</div>;
+  if (loading)
+    return <div className="text-center py-10 text-gray-600">Loading...</div>;
+  if (error)
+    return <div className="text-center py-10 text-red-600">Error: {error}</div>;
 
   return (
     <div className="flex h-screen bg-gray-50">
       <Nav />
       <div className="flex-grow p-6 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-semibold mb-6 text-gray-800">User Management</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-[#2c4036]">
+            User Management
+          </h2>
 
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6">
             <input
@@ -111,7 +115,9 @@ export default function UserList() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredUsers.length === 0 ? (
-              <div className="text-gray-500 col-span-full text-center">No users found.</div>
+              <div className="text-gray-500 col-span-full text-center">
+                No users found.
+              </div>
             ) : (
               filteredUsers.map((user) => (
                 <div
@@ -121,13 +127,15 @@ export default function UserList() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3
-                        className="text-xl font-bold text-blue-600 cursor-pointer hover:underline"
+                        className="text-xl font-bold text-[#2c4036] cursor-pointer hover:underline"
                         onClick={() => navigate(`/admin/profile/${user._id}`)}
                       >
                         {user.name}
                       </h3>
                       <p className="text-sm text-gray-500">{user.email}</p>
-                      <p className="text-sm text-gray-400 mt-1">Reg No: {user.registrationNumber}</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Reg No: {user.registrationNumber}
+                      </p>
                     </div>
                     <div>
                       <span

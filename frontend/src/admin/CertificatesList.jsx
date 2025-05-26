@@ -112,7 +112,9 @@ export default function CertificatesList() {
       <Nav />
       <div className="flex-grow overflow-y-auto">
         <div className="container mx-auto p-5 px-5 lg:px-10 flex flex-col">
-          <h2 className="text-2xl font-bold mb-4">Manage Certificates</h2>
+          <h2 className="text-3xl text-[#2c4036] font-bold mb-4">
+            Manage Certificates
+          </h2>
 
           {/* Search */}
           <div className="mb-6 flex items-center space-x-2 flex-wrap md:flex-nowrap">
@@ -132,7 +134,7 @@ export default function CertificatesList() {
                 key={certificate._id}
                 className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all border border-gray-200"
               >
-                <h3 className="text-lg font-semibold text-black-600">
+                <h3 className="text-lg font-semibold text-[#2c4036]">
                   {certificate.template.name}
                 </h3>
                 <p className="text-sm text-gray-600 mb-1">

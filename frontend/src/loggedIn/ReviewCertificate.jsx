@@ -35,12 +35,11 @@ export default function ReviewCertificate() {
     let outputString = "";
 
     for (let i = 0; i < inputString.length; i += 3) {
-      const batch = inputString.substring(i, i + 3); // Extract a 3-character batch
-
+      const batch = inputString.substring(i, i + 3);
       if (numberMappingReverse[batch]) {
-        outputString += numberMappingReverse[batch]; // If the batch is a code, add the corresponding number
+        outputString += numberMappingReverse[batch]; 
       } else {
-        outputString += batch; // Otherwise, keep the batch as it is
+        outputString += batch; 
       }
     }
 

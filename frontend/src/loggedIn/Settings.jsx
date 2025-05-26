@@ -104,7 +104,7 @@ const Settings = () => {
 
       if (response.data.status === "success") {
         alert("Settings updated successfully!");
-        setIsEditing(false); // exit edit mode
+        setIsEditing(false);
       } else {
         setError(response.data.msg || "Failed to update settings.");
       }
@@ -122,24 +122,64 @@ const Settings = () => {
       <Sidebar />
       <div className="flex-grow pl-64 py-10 px-8">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold mb-6 text-gray-800">
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">
             {isEditing ? "Edit Your" : "Your"}{" "}
             <span className="text-[#346f73]">Profile</span>
           </h1>
+          <div className="flex items-center space-x-4 mb-8">
+            <div className="p-4 bg-[#346f73] rounded-full text-white text-5xl shadow-md">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                className="w-12 h-12"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 19.5a9 9 0 0115 0"
+                />
+              </svg>
+            </div>
+            <div className="text-lg font-semibold text-[#346f73]"></div>
+          </div>
 
           <div className="flex justify-end mb-6">
             <button
               type="button"
               onClick={() => setIsEditing((prev) => !prev)}
-              className="px-4 py-2 rounded-md font-semibold text-white bg-blue-600 hover:bg-blue-700"
+              className="px-4 py-2 rounded-md font-semibold text-white bg-[#346f73] hover:bg-[#1b3b3d] cursor-pointer"
             >
               {isEditing ? "Cancel" : "Edit Profile"}
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-10">
-            {/* Image Upload / Preview */}
-            {isEditing ? (
+          {!isEditing ? (
+            <div className="space-y-8">
+              {formData.image && (
+                <div className="flex justify-center mb-6">
+                  <img
+                    src={formData.image}
+                    alt="Profile"
+                    className="h-24 w-24 rounded-full border-4 border-[#346f73] object-cover shadow-lg hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <ProfileItem label="Name" value={formData.name} />
+                <ProfileItem
+                  label="Registration Number"
+                  value={formData.registrationNumber}
+                />
+                <ProfileItem label="Email" value={formData.email} />
+                <ProfileItem label="Phone Number" value={formData.phone} />
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-10">
               <div>
                 <label className="block mb-2 text-sm font-semibold">
                   Profile Picture / Logo
@@ -151,138 +191,69 @@ const Settings = () => {
                   className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
                 />
               </div>
-            ) : (
-              formData.image && (
-                <div className="mb-4">
-                  <img
-                    src={formData.image}
-                    alt="current"
-                    className="h-20 w-20 rounded-full object-cover border"
-                  />
-                </div>
-              )
-            )}
 
-            {/* Input Fields */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Name */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
+              <div className="grid md:grid-cols-2 gap-6">
+                <EditableInput
+                  label="Name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  readOnly={!isEditing}
-                  disabled={!isEditing}
-                  required
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 cursor-not-allowed"
-                  }`}
+                  isEditing={isEditing}
                 />
-              </div>
-
-              {/* Registration Number */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Registration Number
-                </label>
-                <input
-                  type="text"
+                <EditableInput
+                  label="Registration Number"
                   name="registrationNumber"
                   value={formData.registrationNumber}
                   onChange={handleInputChange}
-                  readOnly={!isEditing}
-                  disabled={!isEditing}
-                  required
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 cursor-not-allowed"
-                  }`}
+                  isEditing={isEditing}
                 />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
+                <EditableInput
+                  label="Email"
                   name="email"
+                  type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  readOnly={!isEditing}
-                  disabled={!isEditing}
-                  required
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 cursor-not-allowed"
-                  }`}
+                  isEditing={isEditing}
                 />
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
+                <EditableInput
+                  label="Phone Number"
                   name="phone"
+                  type="tel"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  readOnly={!isEditing}
-                  disabled={!isEditing}
-                  required
-                  className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
-                    isEditing
-                      ? "focus:ring-2 focus:ring-blue-500"
-                      : "bg-gray-100 cursor-not-allowed"
-                  }`}
+                  isEditing={isEditing}
                 />
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
 
-              {/* Password Fields (only in edit mode) */}
-              {isEditing && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </>
+              {error && (
+                <p className="text-red-600 text-sm font-medium">{error}</p>
               )}
-            </div>
 
-            {/* Error */}
-            {error && (
-              <p className="text-red-600 text-sm font-medium">{error}</p>
-            )}
-
-            {/* Submit Button */}
-            {isEditing && (
               <div>
                 <button
                   type="submit"
@@ -296,12 +267,46 @@ const Settings = () => {
                   {loading ? "Saving..." : "Save Settings"}
                 </button>
               </div>
-            )}
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+const ProfileItem = ({ label, value }) => (
+  <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+    <p className="text-sm text-gray-500 mb-1 font-medium">{label}</p>
+    <p className="text-lg font-semibold text-[#1B3B3D] break-words">{value}</p>
+  </div>
+);
+
+const EditableInput = ({
+  label,
+  name,
+  value,
+  onChange,
+  isEditing,
+  type = "text",
+}) => (
+  <div>
+    <label className="block text-sm font-medium mb-1">{label}</label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      readOnly={!isEditing}
+      disabled={!isEditing}
+      required
+      className={`w-full px-4 py-2 border rounded-md focus:outline-none ${
+        isEditing
+          ? "focus:ring-2 focus:ring-blue-500"
+          : "bg-gray-100 cursor-not-allowed"
+      }`}
+    />
+  </div>
+);
 
 export default Settings;

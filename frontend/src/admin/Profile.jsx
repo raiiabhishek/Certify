@@ -11,12 +11,13 @@ import {
   FaEnvelope,
   FaPhone,
   FaIdBadge,
+  FaChartBar,
+  FaUserCircle,
 } from "react-icons/fa";
 
 const ProfilePage = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("certificates");
-  const [searchTerm, setSearchTerm] = useState("");
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,8 +86,6 @@ const ProfilePage = () => {
     }
   };
 
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
@@ -94,46 +93,70 @@ const ProfilePage = () => {
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-4">
-          <div className="bg-white shadow rounded-lg p-4 mb-4">
-            <div className="flex flex-col md:flex-row justify-between gap-6">
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold mb-1">{profile.name}</h2>
-                <p className="text-gray-600 flex items-center gap-2">
-                  <FaEnvelope className="text-gray-500" /> {profile.email}
-                </p>
-                <p className="text-gray-600 flex items-center gap-2">
-                  <FaPhone className="text-gray-500" /> {profile.phone}
-                </p>
-                <p className="text-gray-600 flex items-center gap-2">
-                  <FaIdBadge className="text-gray-500" />{" "}
-                  {profile.registrationNumber}
-                </p>
-                <div className="mt-2">
-                  {profile.status === "verified" ? (
-                    <span className="text-green-500 font-semibold flex items-center gap-1">
-                      <FaCheckCircle /> Verified
-                    </span>
-                  ) : (
-                    <span className="text-red-500 font-semibold flex items-center gap-1">
-                      <FaTimesCircle /> Not Verified
-                    </span>
-                  )}
+        <div className="p-6 space-y-6">
+          {/* Profile Header */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* User Info Card */}
+            <div className="col-span-2 bg-white rounded-2xl shadow-md p-6">
+              <div className="flex items-center space-x-4">
+                <div className="text-5xl text-[#346f73]">
+                  <FaUserCircle />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    {profile.name}
+                  </h2>
+                  <p className="text-gray-500 flex items-center gap-2">
+                    <FaEnvelope /> {profile.email}
+                  </p>
+                  <p className="text-gray-500 flex items-center gap-2">
+                    <FaPhone /> {profile.phone}
+                  </p>
+                  <p className="text-gray-500 flex items-center gap-2">
+                    <FaIdBadge /> {profile.registrationNumber}
+                  </p>
+                  <div className="mt-2">
+                    {profile.status === "verified" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <FaCheckCircle className="mr-1" /> Verified
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                        <FaTimesCircle className="mr-1" /> Not Verified
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="flex-1 md:border-l md:pl-6">
-                <h3 className="text-lg font-semibold mb-2">Analytics</h3>
-                <p>Certificates: {profile?.certificates.length}</p>
-                <p>Reports: {profile?.reports.length}</p>
+            </div>
+
+            {/* Analytics Card */}
+            <div className="bg-white rounded-2xl shadow-md p-6">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <FaChartBar className="text-[#346f73]" /> Analytics
+              </h3>
+              <div className="space-y-2 text-gray-600">
+                <div className="flex justify-between">
+                  <span>Certificates</span>
+                  <span className="font-semibold text-[#346f73]">
+                    {profile?.certificates?.length}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Reports</span>
+                  <span className="font-semibold text-[#346f73]">
+                    {profile?.reports?.length}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-scroll p-4">
-          <div className="bg-white shadow rounded-lg">
+          {/* Tabs + Content */}
+          <div className="bg-white shadow rounded-xl">
             <div className="p-4">
-              <div className="border-b">
+              {/* Tabs */}
+              <div className="border-b mb-4">
                 <nav className="-mb-px flex space-x-4" aria-label="Tabs">
                   <button
                     onClick={() => handleTabChange("certificates")}
@@ -158,128 +181,92 @@ const ProfilePage = () => {
                 </nav>
               </div>
 
-              <div className="overflow-x-auto">
-                {activeTab === "reports" && (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Certificate ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Comment
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {profile?.reports.map((report) => (
-                        <tr key={report._id}>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                            {report._id}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {report.certificate._id || report.certificate}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {report.comment}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {new Date(report.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    report.certificate.certificateUrl ||
-                                      report.certificate
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(
-                                    report.certificate._id || report.certificate
-                                  )
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Revoke
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+              {/* Certificate Cards */}
+              {activeTab === "certificates" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profile?.certificates.map((certificate) => (
+                    <div
+                      key={certificate._id}
+                      className="bg-gray-100 rounded-lg shadow p-4"
+                    >
+                      <h4 className="text-sm font-bold text-gray-700 mb-2">
+                        Certificate ID: {certificate._id}
+                      </h4>
+                      <p className="text-gray-600 text-sm mb-2">
+                        Created At:{" "}
+                        {new Date(certificate.createdAt).toLocaleDateString()}
+                      </p>
+                      <div className="flex space-x-4 mt-2">
+                        <button
+                          onClick={() =>
+                            handleViewCertificate(certificate.certificateUrl)
+                          }
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          <AiOutlineEye className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRevokeCertificate(certificate._id)
+                          }
+                          className="text-red-600 hover:text-red-900 text-sm"
+                        >
+                          Revoke
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-                {activeTab === "certificates" && (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Created At
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {profile?.certificates.map((certificate) => (
-                        <tr key={certificate._id}>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                            {certificate._id}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {new Date(
-                              certificate.createdAt
-                            ).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() =>
-                                  handleViewCertificate(
-                                    certificate.certificateUrl
-                                  )
-                                }
-                                className="text-indigo-600 hover:text-indigo-900"
-                              >
-                                <AiOutlineEye className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRevokeCertificate(certificate._id)
-                                }
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Revoke
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
+              {/* Report Cards */}
+              {activeTab === "reports" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profile?.reports.map((report) => (
+                    <div
+                      key={report._id}
+                      className="bg-gray-100 rounded-lg shadow p-4"
+                    >
+                      <h4 className="text-sm font-bold text-gray-700 mb-2">
+                        Report ID: {report._id}
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        Certificate ID:{" "}
+                        {report.certificate._id || report.certificate}
+                      </p>
+                      <p className="text-gray-600 text-sm">
+                        Comment: {report.comment}
+                      </p>
+                      <p className="text-gray-600 text-sm mb-2">
+                        Date: {new Date(report.createdAt).toLocaleDateString()}
+                      </p>
+                      <div className="flex space-x-4 mt-2">
+                        <button
+                          onClick={() =>
+                            handleViewCertificate(
+                              report.certificate.certificateUrl ||
+                                report.certificate
+                            )
+                          }
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          <AiOutlineEye className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRevokeCertificate(
+                              report.certificate._id || report.certificate
+                            )
+                          }
+                          className="text-red-600 hover:text-red-900 text-sm"
+                        >
+                          Revoke
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

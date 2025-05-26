@@ -193,7 +193,7 @@ export default function Home() {
         <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="relative">
             <h1 className="mx-auto text-center text-xl lg:text-3xl xl:text-4xl 2xl:text-6xl font-bold ">
-              Welcome <span className="text-black-600"> to your Dashboard</span>
+              <span className="text-[#2c4036]">Activity Overview </span>
             </h1>
           </div>
 
